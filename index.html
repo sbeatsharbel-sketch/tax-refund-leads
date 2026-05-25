@@ -760,7 +760,9 @@
             <p>מלאו את הטופס — נציג יחזור אליכם</p>
           </div>
 
-          <form id="leadForm" novalidate>
+          <form id="leadForm" name="lead-form" netlify netlify-honeypot="bot-field" novalidate>
+            <input type="hidden" name="form-name" value="lead-form">
+            <p class="hidden" style="display:none"><label>לא למלא: <input name="bot-field"></label></p>
             <!-- Hidden UTM fields -->
             <input type="hidden" id="utm_source"   name="utm_source">
             <input type="hidden" id="utm_medium"   name="utm_medium">
@@ -1215,21 +1217,22 @@
     data.submitted_at = new Date().toISOString();
     data.page_url     = window.location.href;
 
-    const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyXoDsRUSoa03VQ4O49mTzyOKbRrRbcZxpYpnyhe_iAy0bXGZhSSmqwAbb3o1xiKr_O/exec';
-
+    // ===== NETLIFY FORMS SUBMISSION =====
+    // Netlify Forms: POST as application/x-www-form-urlencoded to the same page
     try {
-      // Google Apps Script + no-cors: must send as application/x-www-form-urlencoded
-      // (JSON body is silently dropped in no-cors mode; form-encoded data is preserved)
       const params = new URLSearchParams();
+      params.append('form-name', 'lead-form');
       Object.keys(data).forEach(k => params.append(k, data[k] || ''));
 
-      await fetch(WEBHOOK_URL, {
+      const res = await fetch('/', {
         method:  'POST',
-        mode:    'no-cors',
-        body:    params
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    params.toString()
       });
 
-      // no-cors resolves as opaque on network success — treat as saved
+      if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
+
+      // Success — fire tracking pixels then redirect
       if (typeof gtag === 'function') {
         gtag('event', 'conversion', { send_to: 'AW-XXXXXXXX/XXXXXXXXXX' });
       }
