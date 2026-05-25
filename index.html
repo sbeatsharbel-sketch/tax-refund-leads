@@ -146,7 +146,7 @@
       display: grid;
       grid-template-columns: 1fr 420px;
       gap: 48px;
-      align-items: center;
+      align-items: start;
       position: relative;
     }
     .hero-content { color: var(--white); }
@@ -190,6 +190,45 @@
       border-radius: 8px;
     }
     .hero-bullet svg { flex-shrink: 0; }
+
+    /* ===== HERO TRUST CARDS (desktop only) ===== */
+    .hero-trust-cards {
+      display: none;
+    }
+    @media (min-width: 900px) {
+      .hero-trust-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 28px;
+      }
+    }
+    .hero-trust-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .hero-trust-card-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .hero-trust-card-text strong {
+      display: block;
+      font-size: .88rem;
+      color: rgba(255,255,255,.95);
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .hero-trust-card-text span {
+      font-size: .78rem;
+      color: rgba(255,255,255,.65);
+      line-height: 1.5;
+    }
 
     /* ===== FORM CARD ===== */
     .form-card {
@@ -677,6 +716,38 @@
           <div class="hero-bullet">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="rgba(255,255,255,.2)"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             ליווי גורם מקצועי
+          </div>
+        </div>
+
+        <!-- Desktop-only trust cards to fill vertical space -->
+        <div class="hero-trust-cards">
+          <div class="hero-trust-card">
+            <div class="hero-trust-card-icon">📋</div>
+            <div class="hero-trust-card-text">
+              <strong>בדיקה ראשונית בלבד</strong>
+              <span>מילוי הטופס אינו מחייב המשך תהליך כלשהו.</span>
+            </div>
+          </div>
+          <div class="hero-trust-card">
+            <div class="hero-trust-card-icon">⚖️</div>
+            <div class="hero-trust-card-text">
+              <strong>ללא התחייבות לתוצאה</strong>
+              <span>הזכאות נקבעת על ידי רשות המסים בלבד.</span>
+            </div>
+          </div>
+          <div class="hero-trust-card">
+            <div class="hero-trust-card-icon">🔒</div>
+            <div class="hero-trust-card-text">
+              <strong>פרטיות מלאה</strong>
+              <span>פרטיכם משמשים לבדיקה ראשונית בלבד.</span>
+            </div>
+          </div>
+          <div class="hero-trust-card">
+            <div class="hero-trust-card-icon">📅</div>
+            <div class="hero-trust-card-text">
+              <strong>עד 6 שנים אחורה</strong>
+              <span>ניתן לבדוק שנים קודמות — לא מאוחר מדי.</span>
+            </div>
           </div>
         </div>
       </div>
