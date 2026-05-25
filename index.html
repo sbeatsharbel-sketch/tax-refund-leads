@@ -3,873 +3,1179 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>בדיקת זכאות להחזר מס לשכירים</title>
-  <meta name="description" content="שכירים רבים לא בדקו אם שילמו מס עודף. השאירו פרטים לבדיקת זכאות ראשונית ללא התחייבות." />
+  <title>בדיקת זכאות להחזר מס לשכירים | שירות מקצועי</title>
+  <meta name="description" content="שכירים שעבדו בכמה מקומות או החליפו עבודה — ייתכן שקיימת אפשרות להחזר מס. בדיקה ראשונית ללא התחייבות." />
 
-  <!-- Google Tag Manager -->
-  <!-- הדבק כאן את קוד Google Tag Manager (head) -->
-  <!-- <script>(function(w,d,s,l,i){...})(window,document,'script','dataLayer','GTM-XXXXXXX');</script> -->
+  <!-- Google Tag Manager - Replace GTM-XXXXXXX with your real ID -->
+  <!-- <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-XXXXXXX');</script> -->
 
-  <!-- Meta Pixel -->
-  <!-- הדבק כאן את קוד Meta Pixel -->
-  <!-- <script>!function(f,b,e,v,n,t,s){...}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js'); fbq('init', 'PIXEL_ID'); fbq('track', 'PageView');</script> -->
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Meta Pixel - Replace YOUR_PIXEL_ID with your real Pixel ID -->
+  <!-- <script>!function(f,b,e,v,n,t,s){...}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','YOUR_PIXEL_ID');fbq('track','PageView');</script> -->
 
   <style>
+    /* ===== RESET & BASE ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary: #1a3a5c;
-      --primary-light: #2a5298;
-      --accent: #e8a020;
-      --accent-hover: #c88010;
-      --success: #27ae60;
-      --danger: #e74c3c;
-      --bg: #f4f7fb;
-      --white: #ffffff;
-      --text: #2c3e50;
-      --text-light: #5d6d7e;
-      --border: #d5dce8;
-      --shadow: 0 4px 20px rgba(26, 58, 92, 0.12);
-      --radius: 10px;
+      --navy:      #0f2d5e;
+      --navy-mid:  #1a4080;
+      --blue:      #2563eb;
+      --blue-light:#3b82f6;
+      --teal:      #0d9488;
+      --teal-light:#14b8a6;
+      --gray-50:   #f8fafc;
+      --gray-100:  #f1f5f9;
+      --gray-200:  #e2e8f0;
+      --gray-400:  #94a3b8;
+      --gray-600:  #475569;
+      --gray-700:  #334155;
+      --gray-900:  #0f172a;
+      --white:     #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.07);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,.13), 0 4px 12px rgba(0,0,0,.08);
+      --radius:    12px;
+      --radius-lg: 20px;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Heebo', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-700);
+      line-height: 1.65;
       font-size: 16px;
     }
 
-    /* ===== HEADER ===== */
-    header {
-      background: var(--primary);
-      color: var(--white);
-      padding: 14px 20px;
-      text-align: center;
-    }
-    header .logo {
-      font-size: 1.3rem;
+    /* ===== TYPOGRAPHY ===== */
+    h1, h2, h3, h4 { color: var(--gray-900); line-height: 1.3; font-weight: 700; }
+    h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); }
+    h2 { font-size: clamp(1.35rem, 3vw, 1.9rem); }
+    h3 { font-size: clamp(1.05rem, 2vw, 1.25rem); }
+    p  { color: var(--gray-600); }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ===== LAYOUT UTILITIES ===== */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .section    { padding: 72px 0; }
+    .section-alt { background: var(--white); }
+    .text-center { text-align: center; }
+
+    .section-label {
+      display: inline-block;
+      background: rgba(37,99,235,.1);
+      color: var(--blue);
+      font-size: .78rem;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 12px;
     }
-    header .tagline {
-      font-size: 0.85rem;
-      opacity: 0.8;
-      margin-top: 2px;
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      background: var(--navy);
+      color: rgba(255,255,255,.85);
+      font-size: .82rem;
+      text-align: center;
+      padding: 9px 20px;
+      letter-spacing: .01em;
     }
+    .topbar strong { color: var(--white); }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .navbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--navy);
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 1rem;
+    }
+    .nav-cta {
+      background: var(--teal);
+      color: var(--white) !important;
+      padding: 9px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .88rem;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--teal-light); text-decoration: none; }
 
     /* ===== HERO ===== */
     .hero {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color: var(--white);
-      padding: 40px 20px 30px;
-      text-align: center;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 55%, #1e4fa0 100%);
+      padding: 64px 0 80px;
+      position: relative;
+      overflow: hidden;
     }
-    .hero h1 {
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      font-weight: 800;
-      line-height: 1.3;
-      margin-bottom: 14px;
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
-    .hero h2 {
-      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
-      font-weight: 400;
-      opacity: 0.9;
-      max-width: 600px;
-      margin: 0 auto 20px;
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 48px;
+      align-items: center;
+      position: relative;
     }
-    .trust-badges {
+    .hero-content { color: var(--white); }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: rgba(255,255,255,.9);
+      font-size: .8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .hero-badge::before { content: '✦'; color: var(--teal-light); }
+    .hero h1 { color: var(--white); margin-bottom: 16px; }
+    .hero h1 span { color: var(--teal-light); }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.8);
+      margin-bottom: 28px;
+      max-width: 520px;
+    }
+    .hero-bullets {
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 16px;
+      margin-bottom: 32px;
     }
-    .badge {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 0.82rem;
+    .hero-bullet {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.9);
+      font-size: .85rem;
+      padding: 7px 14px;
+      border-radius: 8px;
     }
-
-    /* ===== MAIN LAYOUT ===== */
-    .main-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 30px 16px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-    @media (min-width: 768px) {
-      .main-container {
-        grid-template-columns: 1.1fr 0.9fr;
-        align-items: start;
-      }
-    }
+    .hero-bullet svg { flex-shrink: 0; }
 
     /* ===== FORM CARD ===== */
     .form-card {
       background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px 24px;
-      order: 1;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 36px 32px;
     }
-    @media (min-width: 768px) { .form-card { order: 2; } }
-
-    .form-card h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 6px;
+    .form-card-header {
       text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--gray-200);
     }
-    .form-card .form-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      text-align: center;
-      margin-bottom: 20px;
+    .form-card-header h3 {
+      font-size: 1.15rem;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .form-card-header p {
+      font-size: .83rem;
+      color: var(--gray-400);
     }
 
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
+    /* ===== FORM ELEMENTS ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
       display: block;
-      font-size: 0.88rem;
+      font-size: .83rem;
       font-weight: 600;
-      color: var(--text);
-      margin-bottom: 5px;
+      color: var(--gray-700);
+      margin-bottom: 6px;
     }
-    .form-group label .required {
-      color: var(--danger);
-      margin-right: 2px;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
+    .form-label .req { color: #ef4444; margin-right: 2px; }
+    .form-input, .form-select, .form-textarea {
       width: 100%;
-      padding: 10px 13px;
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      font-family: 'Heebo', sans-serif;
-      font-size: 0.95rem;
-      color: var(--text);
-      background: #fafbfd;
-      transition: border-color 0.2s;
+      padding: 11px 14px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: .92rem;
+      color: var(--gray-900);
+      background: var(--white);
+      transition: border-color .2s, box-shadow .2s;
+      font-family: inherit;
       direction: rtl;
     }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline: none;
-      border-color: var(--primary-light);
-      background: var(--white);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
     }
-    .form-group input.error,
-    .form-group select.error {
-      border-color: var(--danger);
-    }
-    .form-group .error-msg {
-      color: var(--danger);
-      font-size: 0.78rem;
-      margin-top: 3px;
-      display: none;
-    }
-    .form-group .error-msg.visible { display: block; }
+    .form-input::placeholder { color: var(--gray-400); }
+    .form-textarea { resize: vertical; min-height: 70px; }
+    .form-select { cursor: pointer; }
 
-    .radio-group, .checkbox-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 4px;
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Radio groups */
+    .radio-group-label {
+      font-size: .83rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 8px;
+      display: block;
     }
-    .radio-group label, .checkbox-group label {
+    .radio-group-label .req { color: #ef4444; }
+    .radio-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .radio-option {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-weight: 400;
       cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .radio-group input[type="radio"],
-    .checkbox-group input[type="checkbox"] {
-      width: auto;
-      accent-color: var(--primary-light);
-    }
-
-    .section-divider {
-      border: none;
-      border-top: 1px dashed var(--border);
-      margin: 16px 0;
-    }
-    .section-label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--primary-light);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-
-    /* Consent checkboxes */
-    .consent-block {
-      background: #f0f4fa;
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
       border-radius: 8px;
-      padding: 14px;
-      margin-top: 10px;
+      padding: 8px 14px;
+      font-size: .85rem;
+      color: var(--gray-700);
+      transition: all .2s;
+      user-select: none;
     }
-    .consent-item {
+    .radio-option input[type="radio"] { display: none; }
+    .radio-option:has(input:checked) {
+      background: rgba(37,99,235,.07);
+      border-color: var(--blue);
+      color: var(--blue);
+      font-weight: 600;
+    }
+    .radio-dot {
+      width: 16px; height: 16px;
+      border: 2px solid var(--gray-400);
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .radio-option:has(input:checked) .radio-dot {
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+    .radio-option:has(input:checked) .radio-dot::after {
+      content: '';
+      width: 6px; height: 6px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    /* Checkbox */
+    .checkbox-item {
       display: flex;
       align-items: flex-start;
       gap: 10px;
       margin-bottom: 10px;
-      font-size: 0.85rem;
-      line-height: 1.5;
+      cursor: pointer;
     }
-    .consent-item:last-child { margin-bottom: 0; }
-    .consent-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+    .checkbox-item input[type="checkbox"] { display: none; }
+    .checkbox-box {
+      width: 20px; height: 20px;
+      border: 2px solid var(--gray-300, #d1d5db);
+      border-radius: 5px;
       flex-shrink: 0;
       margin-top: 2px;
-      accent-color: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+      background: var(--white);
     }
-    .consent-item label { font-weight: 400; cursor: pointer; }
+    .checkbox-item:has(input:checked) .checkbox-box {
+      background: var(--teal);
+      border-color: var(--teal);
+    }
+    .checkbox-item:has(input:checked) .checkbox-box::after {
+      content: '✓';
+      color: white;
+      font-size: .75rem;
+      font-weight: 700;
+    }
+    .checkbox-text {
+      font-size: .8rem;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+    .checkbox-text strong { color: var(--gray-700); }
+
+    /* Divider */
+    .form-divider {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 18px 0;
+    }
+    .form-section-title {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 14px;
+    }
 
     /* Submit button */
     .btn-submit {
       width: 100%;
-      padding: 15px;
-      background: var(--accent);
+      padding: 15px 24px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
       color: var(--white);
       border: none;
-      border-radius: 8px;
-      font-family: 'Heebo', sans-serif;
-      font-size: 1.1rem;
+      border-radius: 10px;
+      font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      margin-top: 16px;
+      transition: all .25s;
+      box-shadow: 0 4px 14px rgba(13,148,136,.35);
+      letter-spacing: .01em;
+      margin-top: 6px;
     }
-    .btn-submit:hover { background: var(--accent-hover); }
-    .btn-submit:active { transform: scale(0.98); }
-    .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
-
-    .form-note {
-      font-size: 0.78rem;
-      color: var(--text-light);
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(13,148,136,.45);
+    }
+    .btn-submit:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-note {
       text-align: center;
+      font-size: .75rem;
+      color: var(--gray-400);
       margin-top: 10px;
     }
 
-    /* ===== INFO COLUMN ===== */
-    .info-column { order: 2; }
-    @media (min-width: 768px) { .info-column { order: 1; } }
-
-    .info-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px 20px;
-      margin-bottom: 16px;
-    }
-    .info-card h4 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--bg);
-    }
-
-    .target-list { list-style: none; }
-    .target-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--bg);
-      font-size: 0.9rem;
-    }
-    .target-list li:last-child { border-bottom: none; }
-    .target-list .icon {
-      width: 28px;
-      height: 28px;
-      background: var(--primary);
-      color: var(--white);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      flex-shrink: 0;
-    }
-
-    .steps-list { list-style: none; counter-reset: steps; }
-    .steps-list li {
-      counter-increment: steps;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--bg);
-      font-size: 0.9rem;
-    }
-    .steps-list li:last-child { border-bottom: none; }
-    .steps-list .step-num {
-      width: 28px;
-      height: 28px;
-      background: var(--accent);
-      color: var(--white);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
-    .steps-list .step-text strong { display: block; font-weight: 600; }
-
-    /* Contact buttons */
-    .contact-btns {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .btn-wa, .btn-tel {
-      flex: 1;
-      min-width: 120px;
-      padding: 11px 16px;
+    /* Error / success messages */
+    .form-error {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
       border-radius: 8px;
-      font-family: 'Heebo', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-decoration: none;
-      text-align: center;
-      cursor: pointer;
-      transition: opacity 0.2s;
+      padding: 12px 16px;
+      font-size: .85rem;
+      margin-top: 12px;
     }
-    .btn-wa { background: #25d366; color: #fff; }
-    .btn-tel { background: var(--primary); color: #fff; }
-    .btn-wa:hover, .btn-tel:hover { opacity: 0.88; }
+    .form-error.visible { display: block; }
+
+    /* ===== TRUST BAR ===== */
+    .trust-bar {
+      background: var(--navy);
+      padding: 18px 0;
+    }
+    .trust-bar-inner {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 28px;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,.85);
+      font-size: .85rem;
+    }
+    .trust-item-icon {
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem;
+    }
+
+    /* ===== BENEFITS ===== */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .benefit-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      text-align: center;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .benefit-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+    .benefit-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, rgba(37,99,235,.1), rgba(13,148,136,.1));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 16px;
+    }
+    .benefit-card h3 { font-size: 1rem; margin-bottom: 8px; color: var(--navy); }
+    .benefit-card p  { font-size: .85rem; }
+
+    /* ===== WHO IS IT FOR ===== */
+    .who-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .who-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .who-check {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: .9rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .who-card h4 { font-size: .95rem; margin-bottom: 4px; color: var(--navy); }
+    .who-card p  { font-size: .82rem; }
+
+    /* ===== HOW IT WORKS ===== */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 48px;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      right: calc(33.33% + 20px);
+      left: calc(33.33% + 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      z-index: 0;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 auto 18px;
+      box-shadow: 0 4px 14px rgba(37,99,235,.3);
+    }
+    .step h3 { font-size: 1rem; margin-bottom: 8px; color: var(--navy); }
+    .step p  { font-size: .85rem; }
+
+    /* ===== TRUST SECTION ===== */
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .trust-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .trust-card-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .trust-card h4 { font-size: .95rem; margin-bottom: 6px; color: var(--navy); }
+    .trust-card p  { font-size: .82rem; }
 
     /* ===== FAQ ===== */
-    .faq-section {
-      max-width: 900px;
-      margin: 0 auto 30px;
-      padding: 0 16px;
-    }
-    .faq-section h3 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 14px;
-    }
+    .faq-list { margin-top: 40px; }
     .faq-item {
       background: var(--white);
-      border-radius: 8px;
-      margin-bottom: 8px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .faq-q {
-      padding: 14px 18px;
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 18px 22px;
+      text-align: right;
+      font-size: .95rem;
       font-weight: 600;
-      font-size: 0.92rem;
+      color: var(--gray-900);
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      user-select: none;
+      gap: 12px;
+      font-family: inherit;
     }
-    .faq-q::after { content: '▼'; font-size: 0.7rem; transition: transform 0.2s; }
-    .faq-item.open .faq-q::after { transform: rotate(180deg); }
-    .faq-a {
-      display: none;
-      padding: 0 18px 14px;
-      font-size: 0.88rem;
-      color: var(--text-light);
-      line-height: 1.6;
+    .faq-question:hover { background: var(--gray-50); }
+    .faq-arrow {
+      width: 24px; height: 24px;
+      background: var(--gray-100);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: transform .25s, background .2s;
+      font-size: .75rem;
     }
-    .faq-item.open .faq-a { display: block; }
+    .faq-item.open .faq-arrow {
+      transform: rotate(180deg);
+      background: var(--blue);
+      color: white;
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; }
+    .faq-answer-inner {
+      padding: 0 22px 18px;
+      font-size: .88rem;
+      color: var(--gray-600);
+      line-height: 1.7;
+      border-top: 1px solid var(--gray-200);
+      padding-top: 14px;
+    }
 
     /* ===== FOOTER ===== */
-    footer {
-      background: var(--primary);
-      color: rgba(255,255,255,0.75);
+    .footer {
+      background: var(--gray-900);
+      color: rgba(255,255,255,.55);
+      padding: 32px 0;
+      font-size: .78rem;
       text-align: center;
-      padding: 20px 16px;
-      font-size: 0.78rem;
-      line-height: 1.7;
     }
-    footer a { color: rgba(255,255,255,0.85); text-decoration: underline; }
-    footer .disclaimer {
+    .footer a { color: rgba(255,255,255,.55); }
+    .footer a:hover { color: rgba(255,255,255,.85); }
+    .footer-links { margin-bottom: 12px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .footer-disclaimer {
       max-width: 700px;
-      margin: 0 auto 10px;
+      margin: 12px auto 0;
+      line-height: 1.6;
     }
 
-    /* ===== SPINNER ===== */
-    .spinner {
-      display: none;
-      width: 22px;
-      height: 22px;
-      border: 3px solid rgba(255,255,255,0.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto;
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-content { text-align: center; }
+      .hero-sub { margin: 0 auto 28px; }
+      .hero-bullets { justify-content: center; }
+      .steps { grid-template-columns: 1fr; }
+      .steps::before { display: none; }
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Hidden UTM fields */
-    .hidden { display: none !important; }
+    @media (max-width: 600px) {
+      .section { padding: 52px 0; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-card { padding: 24px 18px; }
+      .trust-bar-inner { gap: 16px; }
+      .navbar .nav-cta { display: none; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Google Tag Manager (noscript) -->
+<!-- GTM noscript - replace GTM-XXXXXXX -->
 <!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> -->
 
-<!-- ===== HEADER ===== -->
-<header>
-  <div class="logo">בדיקת זכאות להחזר מס</div>
-  <div class="tagline">שירות מקצועי לשכירים בישראל</div>
-</header>
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+  <strong>שירות לשכירים בישראל</strong> &nbsp;|&nbsp; בדיקה ראשונית ללא התחייבות &nbsp;|&nbsp; הזכאות הסופית נקבעת על ידי רשות המסים בלבד
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">₪</div>
+      <span>בדיקת זכאות להחזר מס</span>
+    </div>
+    <a href="#form" class="nav-cta">בדיקה ראשונית ←</a>
+  </div>
+</nav>
 
 <!-- ===== HERO ===== -->
 <section class="hero">
-  <h1>החלפתם עבודה בשנים האחרונות?<br />ייתכן ששילמתם מס עודף.</h1>
-  <h2>שכירים רבים לא מודעים לאפשרות קיומו של מס שנגבה ביתר. השאירו פרטים לבדיקת זכאות ראשונית מול גורם מקצועי — ללא התחייבות.</h2>
-  <div class="trust-badges">
-    <span class="badge">✓ בדיקה ללא התחייבות</span>
-    <span class="badge">✓ עד 6 שנים אחורה</span>
-    <span class="badge">✓ ליווי מקצועי</span>
-    <span class="badge">✓ תהליך פשוט</span>
+  <div class="container">
+    <div class="hero-grid">
+
+      <!-- Left: Content -->
+      <div class="hero-content">
+        <div class="hero-badge">שירות לשכירים בישראל</div>
+        <h1>החלפתם עבודה<br>בשנים האחרונות?<br><span>ייתכן שקיימת אפשרות<br>להחזר מס.</span></h1>
+        <p class="hero-sub">
+          שכירים שעבדו בכמה מקומות, עברו תקופות ללא עבודה, או לא הגישו בקשה לפני כן —
+          עשויים להיות זכאים להחזר. בדיקה ראשונית ללא עלות ובלי התחייבות.
+        </p>
+        <div class="hero-bullets">
+          <div class="hero-bullet">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="rgba(255,255,255,.2)"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            בדיקה ראשונית ללא עלות
+          </div>
+          <div class="hero-bullet">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="rgba(255,255,255,.2)"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            עד 6 שנים אחורה
+          </div>
+          <div class="hero-bullet">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="rgba(255,255,255,.2)"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            ללא התחייבות לתוצאה
+          </div>
+          <div class="hero-bullet">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="rgba(255,255,255,.2)"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            ליווי גורם מקצועי
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <div id="form">
+        <div class="form-card">
+          <div class="form-card-header">
+            <h3>בדיקת זכאות ראשונית</h3>
+            <p>מלאו את הטופס — נציג יחזור אליכם</p>
+          </div>
+
+          <form id="leadForm" novalidate>
+            <!-- Hidden UTM fields -->
+            <input type="hidden" id="utm_source"   name="utm_source">
+            <input type="hidden" id="utm_medium"   name="utm_medium">
+            <input type="hidden" id="utm_campaign" name="utm_campaign">
+            <input type="hidden" id="utm_term"     name="utm_term">
+            <input type="hidden" id="utm_content"  name="utm_content">
+
+            <p class="form-section-title">פרטים אישיים</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fullname"><span class="req">*</span> שם מלא</label>
+                <input class="form-input" type="text" id="fullname" name="fullname" placeholder="ישראל ישראלי" required autocomplete="name">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="phone"><span class="req">*</span> טלפון נייד</label>
+                <input class="form-input" type="tel" id="phone" name="phone" placeholder="05X-XXXXXXX" required autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="city">עיר מגורים</label>
+                <input class="form-input" type="text" id="city" name="city" placeholder="תל אביב">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="age">גיל</label>
+                <input class="form-input" type="number" id="age" name="age" placeholder="35" min="18" max="70">
+              </div>
+            </div>
+
+            <hr class="form-divider">
+            <p class="form-section-title">שאלות לבדיקת זכאות</p>
+
+            <div class="form-group">
+              <span class="radio-group-label"><span class="req">*</span> האם אתה שכיר?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="is_employee" value="כן" required><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="is_employee" value="לא"><div class="radio-dot"></div>לא</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">עבדת ביותר ממקום עבודה אחד ב-6 השנים האחרונות?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="multi_employer" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="multi_employer" value="לא"><div class="radio-dot"></div>לא</label>
+                <label class="radio-option"><input type="radio" name="multi_employer" value="לא יודע"><div class="radio-dot"></div>לא יודע</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">החלפת עבודה בשנים האחרונות?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="job_change" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="job_change" value="לא"><div class="radio-dot"></div>לא</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">הייתה תקופה ללא עבודה (הפסקה, אבטלה, חל"ת)?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="gap_period" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="gap_period" value="לא"><div class="radio-dot"></div>לא</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">הייתה חופשת לידה?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="maternity" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="maternity" value="לא"><div class="radio-dot"></div>לא</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">עשית מילואים?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="reserve_duty" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="reserve_duty" value="לא"><div class="radio-dot"></div>לא</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">יש לך טופס 106?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="form106" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="form106" value="לא"><div class="radio-dot"></div>לא</label>
+                <label class="radio-option"><input type="radio" name="form106" value="לא יודע"><div class="radio-dot"></div>לא יודע</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="radio-group-label">בדקת החזר מס בעבר?</span>
+              <div class="radio-options">
+                <label class="radio-option"><input type="radio" name="prev_refund" value="כן"><div class="radio-dot"></div>כן</label>
+                <label class="radio-option"><input type="radio" name="prev_refund" value="לא"><div class="radio-dot"></div>לא</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="best_time">מתי נוח שיחזרו אליך?</label>
+              <select class="form-select" id="best_time" name="best_time">
+                <option value="">-- בחר --</option>
+                <option>בוקר (8:00–12:00)</option>
+                <option>צהריים (12:00–16:00)</option>
+                <option>אחה"צ (16:00–20:00)</option>
+                <option>כל שעה</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="notes">הערות נוספות (אופציונלי)</label>
+              <textarea class="form-textarea" id="notes" name="notes" placeholder="כל מידע נוסף..."></textarea>
+            </div>
+
+            <hr class="form-divider">
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="consent1" name="consent1" required>
+              <div class="checkbox-box"></div>
+              <span class="checkbox-text"><strong>*</strong> אני מסכים/ה שיחזרו אליי לצורך בדיקת זכאות ראשונית להחזר מס.</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="consent2" name="consent2" required>
+              <div class="checkbox-box"></div>
+              <span class="checkbox-text"><strong>*</strong> אני מסכים/ה שפרטיי יועברו לגורם מקצועי / חברה מטפלת בתחום החזרי מס לצורך יצירת קשר.</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="consent3" name="consent3" required>
+              <div class="checkbox-box"></div>
+              <span class="checkbox-text"><strong>*</strong> אני מבין/ה שאין התחייבות לקבלת החזר מס כלשהו, וכי הזכאות הסופית נקבעת אך ורק על ידי רשות המסים.</span>
+            </label>
+
+            <button type="submit" class="btn-submit" id="submitBtn">בדיקת זכאות ראשונית ←</button>
+            <p class="btn-note">ללא עלות · ללא התחייבות · פרטיך מאובטחים</p>
+
+            <div class="form-error" id="formError">
+              אירעה שגיאה בשליחת הטופס. אנא נסו שנית או פנו אלינו ישירות.
+            </div>
+          </form>
+        </div>
+      </div><!-- /#form -->
+
+    </div><!-- /.hero-grid -->
   </div>
 </section>
 
-<!-- ===== MAIN ===== -->
-<div class="main-container">
-
-  <!-- ===== FORM ===== -->
-  <div class="form-card">
-    <h3>בדקו זכאות ראשונית עכשיו</h3>
-    <p class="form-subtitle">מלאו את הטופס ונציג מקצועי יחזור אליכם</p>
-
-    <form id="leadForm" novalidate>
-
-      <!-- Hidden UTM fields -->
-      <input type="hidden" id="utm_source" name="utm_source" />
-      <input type="hidden" id="utm_medium" name="utm_medium" />
-      <input type="hidden" id="utm_campaign" name="utm_campaign" />
-      <input type="hidden" id="utm_content" name="utm_content" />
-      <input type="hidden" id="utm_term" name="utm_term" />
-      <input type="hidden" id="form_timestamp" name="form_timestamp" />
-      <input type="hidden" id="page_url" name="page_url" />
-
-      <!-- פרטים אישיים -->
-      <div class="section-label">פרטים אישיים</div>
-
-      <div class="form-group">
-        <label for="fullname">שם מלא <span class="required">*</span></label>
-        <input type="text" id="fullname" name="fullname" placeholder="ישראל ישראלי" autocomplete="name" />
-        <div class="error-msg" id="err_fullname">נא להזין שם מלא</div>
-      </div>
-
-      <div class="form-group">
-        <label for="phone">טלפון נייד <span class="required">*</span></label>
-        <input type="tel" id="phone" name="phone" placeholder="05X-XXXXXXX" autocomplete="tel" inputmode="numeric" />
-        <div class="error-msg" id="err_phone">נא להזין מספר טלפון תקין</div>
-      </div>
-
-      <div class="form-group">
-        <label for="city">עיר מגורים</label>
-        <input type="text" id="city" name="city" placeholder="תל אביב" />
-      </div>
-
-      <div class="form-group">
-        <label for="age">גיל</label>
-        <input type="number" id="age" name="age" placeholder="35" min="18" max="80" inputmode="numeric" />
-      </div>
-
-      <hr class="section-divider" />
-      <!-- שאלות סינון -->
-      <div class="section-label">שאלות לבדיקת זכאות</div>
-
-      <div class="form-group">
-        <label>האם אתה שכיר? <span class="required">*</span></label>
-        <div class="radio-group">
-          <label><input type="radio" name="is_employee" value="כן" required /> כן</label>
-          <label><input type="radio" name="is_employee" value="לא" /> לא</label>
-        </div>
-        <div class="error-msg" id="err_is_employee">נא לבחור תשובה</div>
-      </div>
-
-      <div class="form-group">
-        <label>האם עבדת ביותר ממקום עבודה אחד ב-6 השנים האחרונות?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="multi_employer" value="כן" /> כן</label>
-          <label><input type="radio" name="multi_employer" value="לא" /> לא</label>
-          <label><input type="radio" name="multi_employer" value="לא יודע" /> לא יודע</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם החלפת עבודה בשנים האחרונות?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="changed_job" value="כן" /> כן</label>
-          <label><input type="radio" name="changed_job" value="לא" /> לא</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם הייתה תקופה שלא עבדת (הפסקת עבודה כלשהי)?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="work_gap" value="כן" /> כן</label>
-          <label><input type="radio" name="work_gap" value="לא" /> לא</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם היית באבטלה?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="unemployment" value="כן" /> כן</label>
-          <label><input type="radio" name="unemployment" value="לא" /> לא</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם הייתה חופשת לידה?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="maternity" value="כן" /> כן</label>
-          <label><input type="radio" name="maternity" value="לא" /> לא</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם עשית מילואים?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="miluim" value="כן" /> כן</label>
-          <label><input type="radio" name="miluim" value="לא" /> לא</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם יש לך טופס 106?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="has_106" value="כן" /> כן</label>
-          <label><input type="radio" name="has_106" value="לא" /> לא</label>
-          <label><input type="radio" name="has_106" value="לא יודע" /> לא יודע</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>האם בדקת החזר מס בעבר?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="checked_before" value="כן" /> כן</label>
-          <label><input type="radio" name="checked_before" value="לא" /> לא</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="best_time">מתי נוח שיחזרו אליך?</label>
-        <select id="best_time" name="best_time">
-          <option value="">-- בחר --</option>
-          <option value="בוקר (8:00-12:00)">בוקר (8:00-12:00)</option>
-          <option value="צהריים (12:00-16:00)">צהריים (12:00-16:00)</option>
-          <option value="אחה"צ (16:00-20:00)">אחה"צ (16:00-20:00)</option>
-          <option value="כל שעה">כל שעה</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="notes">הערות נוספות (אופציונלי)</label>
-        <textarea id="notes" name="notes" rows="2" placeholder="כל מידע נוסף שיכול לעזור..."></textarea>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- הסכמות -->
-      <div class="consent-block">
-        <div class="consent-item">
-          <input type="checkbox" id="consent1" name="consent1" required />
-          <label for="consent1">אני מסכים/ה שיחזרו אליי לצורך בדיקת זכאות ראשונית להחזר מס. <span class="required">*</span></label>
-        </div>
-        <div class="consent-item">
-          <input type="checkbox" id="consent2" name="consent2" required />
-          <label for="consent2">אני מסכים/ה שפרטיי יועברו לגורם מקצועי / חברה מטפלת בתחום החזרי מס לצורך יצירת קשר. <span class="required">*</span></label>
-        </div>
-        <div class="consent-item">
-          <input type="checkbox" id="consent3" name="consent3" required />
-          <label for="consent3">אני מבין/ה שאין התחייבות לקבלת החזר מס כלשהו, וכי הזכאות הסופית נקבעת אך ורק על ידי רשות המסים. <span class="required">*</span></label>
-        </div>
-        <div class="error-msg" id="err_consent" style="margin-top:6px;">נא לאשר את כל ההסכמות הנדרשות</div>
-      </div>
-
-      <button type="submit" class="btn-submit" id="submitBtn">
-        <span id="btnText">בדקו זכאות עכשיו ←</span>
-        <div class="spinner" id="spinner"></div>
-      </button>
-
-      <div id="submit-error" style="display:none;background:#fdecea;border:1.5px solid #e74c3c;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:0.88rem;color:#c0392b;text-align:right;">
-        <strong>שגיאה בשליחת הטופס.</strong> הפרטים שלך לא נשמרו. אנא נסו שוב, ואם הבעיה חוזרת — פנו אלינו ישירות בוואטסאפ.
-      </div>
-      <p class="form-note">בלחיצה על הכפתור, פרטיך יועברו לגורם מקצועי ליצירת קשר. אין בכך התחייבות לקבלת החזר.</p>
-
-    </form>
-  </div><!-- /form-card -->
-
-  <!-- ===== INFO COLUMN ===== -->
-  <div class="info-column">
-
-    <div class="info-card">
-      <h4>למי מתאימה הבדיקה?</h4>
-      <ul class="target-list">
-        <li>
-          <div class="icon">✓</div>
-          <div><strong>מחליפי עבודות</strong><br /><small>עבדתם בכמה מקומות? ייתכן שחישוב המס לא היה מדויק.</small></div>
-        </li>
-        <li>
-          <div class="icon">✓</div>
-          <div><strong>תקופות ללא עבודה</strong><br /><small>חופשת לידה, אבטלה או חל"ת יכולות להשפיע על חישוב המס.</small></div>
-        </li>
-        <li>
-          <div class="icon">✓</div>
-          <div><strong>שכירים משלמי מס</strong><br /><small>הבדיקה רלוונטית לשכירים שמשלמים מס הכנסה בתלוש.</small></div>
-        </li>
-        <li>
-          <div class="icon">✓</div>
-          <div><strong>בעלי טופס 106</strong><br /><small>ריכוז הנתונים השנתי שלכם הוא המפתח לבדיקה.</small></div>
-        </li>
-        <li>
-          <div class="icon">✓</div>
-          <div><strong>שירות מילואים</strong><br /><small>ייתכן שיש זכאות להחזר בגין תקופת המילואים.</small></div>
-        </li>
-      </ul>
+<!-- ===== TRUST BAR ===== -->
+<div class="trust-bar">
+  <div class="container">
+    <div class="trust-bar-inner">
+      <div class="trust-item"><div class="trust-item-icon">🔒</div> פרטיות ואבטחת מידע</div>
+      <div class="trust-item"><div class="trust-item-icon">📋</div> בדיקה ראשונית בלבד</div>
+      <div class="trust-item"><div class="trust-item-icon">✅</div> ללא התחייבות לתוצאה</div>
+      <div class="trust-item"><div class="trust-item-icon">👤</div> ליווי גורם מקצועי</div>
+      <div class="trust-item"><div class="trust-item-icon">📅</div> עד 6 שנים אחורה</div>
     </div>
+  </div>
+</div>
 
-    <div class="info-card">
-      <h4>איך התהליך עובד?</h4>
-      <ol class="steps-list">
-        <li>
-          <div class="step-num">1</div>
-          <div class="step-text"><strong>בדיקה ראשונית</strong>מלאו את הטופס ונציג מקצועי יחזור אליכם לשיחה קצרה.</div>
-        </li>
-        <li>
-          <div class="step-num">2</div>
-          <div class="step-text"><strong>איסוף נתונים</strong>הגורם המטפל יסייע לכם לאסוף את הטפסים הנדרשים.</div>
-        </li>
-        <li>
-          <div class="step-num">3</div>
-          <div class="step-text"><strong>חישוב והגשה</strong>אם תימצא סבירות להחזר, תוגש בקשה מסודרת לרשות המסים.</div>
-        </li>
-      </ol>
-    </div>
-
-    <div class="info-card">
-      <h4>יש שאלות? דברו איתנו</h4>
-      <div class="contact-btns">
-        <a href="https://wa.me/972XXXXXXXXX?text=שלום%2C%20אני%20מעוניין%20בבדיקת%20זכאות%20להחזר%20מס" class="btn-wa" target="_blank" rel="noopener">💬 וואטסאפ</a>
-        <a href="tel:+972XXXXXXXXX" class="btn-tel">📞 התקשרו</a>
+<!-- ===== BENEFITS ===== -->
+<section class="section section-alt">
+  <div class="container text-center">
+    <span class="section-label">למה לבדוק?</span>
+    <h2>מה כולל השירות?</h2>
+    <p style="max-width:560px;margin:12px auto 0;">בדיקה ראשונית פשוטה שמטרתה לבחון האם קיימת סבירות לזכאות — לפני כל פעולה נוספת.</p>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">📞</div>
+        <h3>חזרה מנציג מקצועי</h3>
+        <p>לאחר השארת הפרטים, גורם מקצועי יחזור אליכם לשיחה ראשונית קצרה.</p>
       </div>
-      <p style="font-size:0.78rem;color:var(--text-light);margin-top:10px;">* החליפו את XXXXXXXXX במספר הטלפון שלכם</p>
+      <div class="benefit-card">
+        <div class="benefit-icon">📄</div>
+        <h3>בדיקה ראשונית</h3>
+        <p>בחינה ראשונית של הנתונים שלכם — האם קיימת סבירות לזכאות להחזר.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🗂️</div>
+        <h3>סיוע באיסוף מסמכים</h3>
+        <p>אם תימצא סבירות, הגורם המטפל יסייע לכם לאסוף את הטפסים הנדרשים.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">📬</div>
+        <h3>הגשה מסודרת</h3>
+        <p>הגשת הבקשה לרשות המסים תתבצע בצורה מסודרת ומקצועית.</p>
+      </div>
     </div>
+  </div>
+</section>
 
-  </div><!-- /info-column -->
+<!-- ===== WHO IS IT FOR ===== -->
+<section class="section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label">למי מתאים?</span>
+      <h2>מי עשוי להיות זכאי לבדיקה?</h2>
+      <p style="max-width:560px;margin:12px auto 0;">הבדיקה הראשונית מתאימה לשכירים שעמדו בחלק מהמצבים הבאים בשנים האחרונות.</p>
+    </div>
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="who-check">✓</div>
+        <div>
+          <h4>מחליפי עבודות</h4>
+          <p>עבדתם בכמה מקומות? ייתכן שחישוב המס לא היה מדויק.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check">✓</div>
+        <div>
+          <h4>תקופות ללא עבודה</h4>
+          <p>חופשת לידה, אבטלה, חל"ת — עשויות להשפיע על חישוב המס.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check">✓</div>
+        <div>
+          <h4>שכירים משלמי מס</h4>
+          <p>הבדיקה רלוונטית לשכירים שמשלמים מס הכנסה בתלוש.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check">✓</div>
+        <div>
+          <h4>בעלי טופס 106</h4>
+          <p>ריכוז הנתונים השנתי שלכם הוא הבסיס לבדיקה.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check">✓</div>
+        <div>
+          <h4>שירות מילואים</h4>
+          <p>ייתכן שיש זכאות להחזר בגין תקופת המילואים.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check">✓</div>
+        <div>
+          <h4>מי שלא בדק עדיין</h4>
+          <p>ניתן לבדוק עד 6 שנים אחורה — לא מאוחר מדי.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-</div><!-- /main-container -->
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section section-alt">
+  <div class="container text-center">
+    <span class="section-label">התהליך</span>
+    <h2>איך זה עובד?</h2>
+    <p style="max-width:500px;margin:12px auto 0;">תהליך פשוט ומסודר — מהשארת הפרטים ועד לבדיקה ראשונית.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>השארת פרטים</h3>
+        <p>מלאו את הטופס הקצר. הנתונים שלכם מאובטחים ומשמשים לבדיקה ראשונית בלבד.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>חזרה מנציג</h3>
+        <p>גורם מקצועי יחזור אליכם לשיחה ראשונית ויבחן את הנתונים הבסיסיים.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>בדיקה ראשונית</h3>
+        <p>אם תימצא סבירות לזכאות, תקבלו הדרכה על השלבים הבאים.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRUST SECTION ===== -->
+<section class="section">
+  <div class="container text-center">
+    <span class="section-label">שקיפות ואמינות</span>
+    <h2>מה חשוב לדעת לפני הגשה</h2>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-card-icon">📋</div>
+        <h4>בדיקה ראשונית בלבד</h4>
+        <p>מילוי הטופס מהווה פנייה לבדיקה ראשונית — לא התחייבות לכל שירות נוסף.</p>
+      </div>
+      <div class="trust-card">
+        <div class="trust-card-icon">⚖️</div>
+        <h4>ללא התחייבות לתוצאה</h4>
+        <p>הזכאות הסופית נקבעת אך ורק על ידי רשות המסים. אין כל הבטחה לקבלת החזר.</p>
+      </div>
+      <div class="trust-card">
+        <div class="trust-card-icon">🔒</div>
+        <h4>פרטיות ושמירה על מידע</h4>
+        <p>פרטיכם ישמשו לצורך יצירת קשר ובדיקה ראשונית בלבד, בהתאם למדיניות הפרטיות.</p>
+      </div>
+      <div class="trust-card">
+        <div class="trust-card-icon">🏛️</div>
+        <h4>לא גוף ממשלתי</h4>
+        <p>אתר זה אינו שייך לרשות המסים. הוא משמש כפלטפורמה לאיסוף פניות לגורמים מקצועיים.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ===== FAQ ===== -->
-<section class="faq-section">
-  <h3>שאלות נפוצות</h3>
-
-  <div class="faq-item">
-    <div class="faq-q">האם מובטח לי החזר מס?</div>
-    <div class="faq-a">לא. הבדיקה נועדה לבחון האם שילמתם מס עודף. רק רשות המסים קובעת את הזכאות הסופית לאחר בחינת הנתונים. אין כל התחייבות לקבלת החזר.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">כמה שנים אחורה אפשר לבדוק?</div>
-    <div class="faq-a">על פי החוק, ניתן לבקש החזר מס עד 6 שנים אחורה מתום שנת המס.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">מי מבצע את הבדיקה?</div>
-    <div class="faq-a">אתר זה משמש כפלטפורמה שיווקית. לאחר השארת הפרטים, המידע יועבר לחברה מקצועית בתחום החזרי המס אשר תיצור עמכם קשר לשיחת בדיקה ראשונית.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">האם השירות כרוך בתשלום?</div>
-    <div class="faq-a">הבדיקה הראשונית היא ללא עלות. תנאי השירות המלא יוסברו לכם בשיחה עם הנציג המקצועי.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">מה קורה עם הפרטים שלי?</div>
-    <div class="faq-a">פרטיכם ישמשו אך ורק לצורך יצירת קשר בנוגע לבדיקת הזכאות. לא נעביר את פרטיכם לגורמים שלישיים שאינם קשורים לשירות זה.</div>
+<section class="section section-alt">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label">שאלות נפוצות</span>
+      <h2>שאלות ותשובות</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          האם מובטח לי החזר מס?
+          <span class="faq-arrow">▾</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            לא. הבדיקה הראשונית בוחנת האם קיימת סבירות לזכאות — אך הזכאות הסופית נקבעת אך ורק על ידי רשות המסים. אין כל הבטחה לקבלת החזר כלשהו.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          כמה שנים אחורה ניתן לבדוק?
+          <span class="faq-arrow">▾</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            על פי כללי רשות המסים, ניתן להגיש בקשה להחזר מס עד 6 שנים אחורה. הגורם המקצועי יוכל להסביר לכם מה רלוונטי לגביכם.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          מי מבצע את הבדיקה?
+          <span class="faq-arrow">▾</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            הבדיקה הראשונית מתבצעת על ידי גורם מקצועי / חברה העוסקת בתחום החזרי מס. האתר משמש כפלטפורמה לאיסוף פניות ולחיבור בין מבקשים לגורמים המטפלים.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          האם השירות כרוך בתשלום?
+          <span class="faq-arrow">▾</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            הבדיקה הראשונית ושיחת ההיכרות אינן כרוכות בתשלום. תנאי השירות המלא, אם יוחלט להמשיך, יוסברו לכם על ידי הגורם המטפל לפני כל התחייבות.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          מה קורה עם הפרטים שלי?
+          <span class="faq-arrow">▾</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            פרטיכם ישמשו לצורך יצירת קשר ובדיקה ראשונית בלבד. הם יועברו לגורם המקצועי המטפל בהתאם להסכמתכם. לא נעביר פרטים לצדדים שלישיים ללא הסכמתכם.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ===== FOOTER ===== -->
-<footer>
-  <p class="disclaimer">
-    אתר זה אינו שייך לרשות המסים ואינו גוף ממשלתי. האתר משמש כפלטפורמה לאיסוף פניות עבור חברות העוסקות בייעוץ והחזרי מס. השארת הפרטים מהווה הסכמה להעברתם לגורם מקצועי לצורך יצירת קשר. אין באמור כדי להבטיח זכאות להחזר מס כלשהו.
-  </p>
-  <p>
-    <a href="privacy.html">מדיניות פרטיות</a> &nbsp;|&nbsp;
-    <a href="terms.html">תנאי שימוש</a> &nbsp;|&nbsp;
-    <a href="mailto:info@example.com">צור קשר</a>
-  </p>
-  <p style="margin-top:8px;opacity:0.6;">© 2024 כל הזכויות שמורות</p>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-links">
+      <a href="privacy.html">מדיניות פרטיות</a>
+      <a href="terms.html">תנאי שימוש</a>
+      <a href="mailto:info@example.com">צור קשר</a>
+    </div>
+    <div class="footer-disclaimer">
+      אתר זה אינו שייך לרשות המסים ואינו גוף ממשלתי. האתר משמש כפלטפורמה לאיסוף פניות עבור חברות העוסקות בייעוץ והחזרי מס.
+      השארת הפרטים מהווה הסכמה להעברתם לגורם מקצועי לצורך יצירת קשר. אין באמור כדי להבטיח זכאות להחזר מס כלשהו.
+    </div>
+    <div style="margin-top:16px;">© 2024 כל הזכויות שמורות</div>
+  </div>
 </footer>
 
 <script>
   // ===== UTM CAPTURE =====
   (function() {
-    const params = new URLSearchParams(window.location.search);
-    const fields = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    fields.forEach(f => {
-      const el = document.getElementById(f);
-      if (el && params.get(f)) el.value = params.get(f);
+    const p = new URLSearchParams(window.location.search);
+    ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k => {
+      const v = p.get(k);
+      if (v) {
+        const el = document.getElementById(k);
+        if (el) el.value = v;
+        sessionStorage.setItem(k, v);
+      } else {
+        const stored = sessionStorage.getItem(k);
+        const el = document.getElementById(k);
+        if (stored && el) el.value = stored;
+      }
     });
-    const ts = document.getElementById('form_timestamp');
-    if (ts) ts.value = new Date().toISOString();
-    const pu = document.getElementById('page_url');
-    if (pu) pu.value = window.location.href;
   })();
 
-  // ===== FAQ ACCORDION =====
-  document.querySelectorAll('.faq-q').forEach(q => {
-    q.addEventListener('click', () => {
-      const item = q.parentElement;
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
-    });
-  });
-
-  // ===== FORM VALIDATION & SUBMIT =====
-  const form = document.getElementById('leadForm');
-  const submitBtn = document.getElementById('submitBtn');
-  const btnText = document.getElementById('btnText');
-  const spinner = document.getElementById('spinner');
-
-  function showError(id, show) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('visible', show);
-  }
-  function markField(id, error) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('error', error);
+  // ===== FAQ TOGGLE =====
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
   }
 
-  function validateForm() {
-    let valid = true;
-
-    // Full name
-    const name = document.getElementById('fullname').value.trim();
-    const nameErr = name.length < 2;
-    markField('fullname', nameErr);
-    showError('err_fullname', nameErr);
-    if (nameErr) valid = false;
-
-    // Phone
-    const phone = document.getElementById('phone').value.replace(/\D/g,'');
-    const phoneErr = phone.length < 9 || phone.length > 11;
-    markField('phone', phoneErr);
-    showError('err_phone', phoneErr);
-    if (phoneErr) valid = false;
-
-    // Is employee
-    const isEmployee = form.querySelector('input[name="is_employee"]:checked');
-    showError('err_is_employee', !isEmployee);
-    if (!isEmployee) valid = false;
-
-    // Consents
-    const c1 = document.getElementById('consent1').checked;
-    const c2 = document.getElementById('consent2').checked;
-    const c3 = document.getElementById('consent3').checked;
-    const consentErr = !c1 || !c2 || !c3;
-    showError('err_consent', consentErr);
-    if (consentErr) valid = false;
-
-    return valid;
-  }
-
-  form.addEventListener('submit', async function(e) {
+  // ===== FORM SUBMIT =====
+  document.getElementById('leadForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!validateForm()) return;
+    const form   = e.target;
+    const btn    = document.getElementById('submitBtn');
+    const errBox = document.getElementById('formError');
 
-    // Disable button, show spinner
-    submitBtn.disabled = true;
-    btnText.style.display = 'none';
-    spinner.style.display = 'block';
+    // Basic validation
+    const name  = form.fullname.value.trim();
+    const phone = form.phone.value.trim();
+    const emp   = form.querySelector('input[name="is_employee"]:checked');
+    const c1    = form.consent1.checked;
+    const c2    = form.consent2.checked;
+    const c3    = form.consent3.checked;
 
-    // Collect form data
+    if (!name || !phone || !emp || !c1 || !c2 || !c3) {
+      errBox.textContent = 'אנא מלאו את כל השדות החובה וסמנו את כל ההסכמות.';
+      errBox.classList.add('visible');
+      errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (!/^0[5][0-9][-\s]?[0-9]{7}$/.test(phone.replace(/\s/g,''))) {
+      errBox.textContent = 'אנא הזינו מספר טלפון נייד תקין (לדוגמה: 050-1234567).';
+      errBox.classList.add('visible');
+      return;
+    }
+
+    errBox.classList.remove('visible');
+    btn.disabled = true;
+    btn.textContent = 'שולח...';
+
+    // Collect data
     const data = {};
     new FormData(form).forEach((v, k) => { data[k] = v; });
-
     // Add radio values
-    ['is_employee','multi_employer','changed_job','work_gap','unemployment','maternity','miluim','has_106','checked_before'].forEach(name => {
-      const checked = form.querySelector(`input[name="${name}"]:checked`);
-      data[name] = checked ? checked.value : '';
+    ['is_employee','multi_employer','job_change','gap_period','maternity','reserve_duty','form106','prev_refund'].forEach(n => {
+      const el = form.querySelector(`input[name="${n}"]:checked`);
+      data[n] = el ? el.value : '';
     });
+    data.submitted_at = new Date().toISOString();
+    data.page_url     = window.location.href;
 
-    // ===== SEND TO WEBHOOK =====
-    // ⚠️ חובה: החליפו את הכתובת הבאה ב-Webhook אמיתי מ-Make לפני העלאת האתר לאוויר.
-    // אם לא תחליפו — הלידים לא יישמרו ולא תקבלו התראות.
-    // ראו קובץ README.md להוראות חיבור מלאות.
+    // ⚠️ חובה להחליף את הכתובת הזאת ב-Webhook אמיתי מ-Make לפני העלאת האתר לאוויר.
+    // ⚠️ אם לא תחליפו — הלידים לא יישמרו ולא תקבלו התראות.
+    // ⚠️ ראו הוראות מפורטות בקובץ README.md
     const WEBHOOK_URL = 'https://hook.eu1.make.com/YOUR_WEBHOOK_ID';
 
-    let webhookSuccess = false;
     try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
+      const res = await fetch(WEBHOOK_URL, {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body:    JSON.stringify(data)
       });
-      // Make מחזיר 200 או 202 על הצלחה
-      if (response.ok) {
-        webhookSuccess = true;
+
+      if (res.ok) {
+        // Fire conversion events ONLY on success
+        if (typeof gtag === 'function') {
+          gtag('event', 'conversion', { send_to: 'AW-XXXXXXXX/XXXXXXXXXX' });
+        }
+        if (typeof fbq === 'function') {
+          fbq('track', 'Lead');
+        }
+        window.location.href = 'thank-you.html';
+      } else {
+        throw new Error('Server responded with ' + res.status);
       }
     } catch (err) {
-      console.error('Webhook error:', err);
+      console.error('Form submission error:', err);
+      errBox.textContent = 'אירעה שגיאה בשליחת הטופס. אנא נסו שנית בעוד מספר דקות.';
+      errBox.classList.add('visible');
+      btn.disabled    = false;
+      btn.textContent = 'בדיקת זכאות ראשונית ←';
+      errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-
-    if (!webhookSuccess) {
-      // ===== שגיאה: הליד לא נשמר — אל תעברו לעמוד תודה =====
-      const errEl = document.getElementById('submit-error');
-      if (errEl) errEl.style.display = 'block';
-      // החזר כפתור למצב רגיל
-      submitBtn.disabled = false;
-      btnText.style.display = 'inline';
-      spinner.style.display = 'none';
-      return; // עצור — לא מעבירים לעמוד תודה
-    }
-
-    // ===== GOOGLE ADS CONVERSION — מופעל רק אחרי שמירת הליד =====
-    // if (typeof gtag !== 'undefined') {
-    //   gtag('event', 'conversion', { 'send_to': 'AW-XXXXXXXXX/XXXXXXXXX' });
-    // }
-
-    // ===== META PIXEL LEAD EVENT — מופעל רק אחרי שמירת הליד =====
-    // if (typeof fbq !== 'undefined') {
-    //   fbq('track', 'Lead');
-    // }
-
-    // Redirect to thank you page — רק אם הליד נשמר בהצלחה
-    window.location.href = 'thank-you.html';
   });
 </script>
 
