@@ -1218,7 +1218,7 @@
     // ⚠️ חובה להחליף את הכתובת הזאת ב-Webhook אמיתי מ-Make לפני העלאת האתר לאוויר.
     // ⚠️ אם לא תחליפו — הלידים לא יישמרו ולא תקבלו התראות.
     // ⚠️ ראו הוראות מפורטות בקובץ README.md
-    const WEBHOOK_URL = 'https://hook.eu1.make.com/YOUR_WEBHOOK_ID';
+    const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx0WJYYBOyYWMkW6slxFbwOAzI-jq4U2ll3nsLUL-dxtzfa2dHgEHZjZ8VIhU1BYYfD/exec';
 
     try {
       const res = await fetch(WEBHOOK_URL, {
@@ -1227,8 +1227,12 @@
         body:    JSON.stringify(data)
       });
 
-      if (res.ok) {
-        // Fire conversion events ONLY on success
+      // Google Apps Script always returns HTTP 200 — must check JSON body for real status
+      let result = {};
+      try { result = await res.json(); } catch(e) { result = {}; }
+
+      if (res.ok && result.status === 'success') {
+        // Fire conversion events ONLY on confirmed success
         if (typeof gtag === 'function') {
           gtag('event', 'conversion', { send_to: 'AW-XXXXXXXX/XXXXXXXXXX' });
         }
@@ -1237,7 +1241,7 @@
         }
         window.location.href = 'thank-you.html';
       } else {
-        throw new Error('Server responded with ' + res.status);
+        throw new Error(result.message || 'Server error: ' + res.status);
       }
     } catch (err) {
       console.error('Form submission error:', err);
