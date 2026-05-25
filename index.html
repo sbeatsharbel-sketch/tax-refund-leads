@@ -1215,24 +1215,21 @@
     data.submitted_at = new Date().toISOString();
     data.page_url     = window.location.href;
 
-    // ⚠️ חובה להחליף את הכתובת הזאת ב-Webhook אמיתי מ-Make לפני העלאת האתר לאוויר.
-    // ⚠️ אם לא תחליפו — הלידים לא יישמרו ולא תקבלו התראות.
-    // ⚠️ ראו הוראות מפורטות בקובץ README.md
     const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx0WJYYBOyYWMkW6slxFbwOAzI-jq4U2ll3nsLUL-dxtzfa2dHgEHZjZ8VIhU1BYYfD/exec';
 
     try {
-      // Google Apps Script requires no-cors mode due to redirect-based CORS handling.
-      // We send the request and treat a network-level success as a saved lead.
-      // The script itself validates and saves — if it fails internally it logs the error.
+      // Google Apps Script + no-cors: must send as application/x-www-form-urlencoded
+      // (JSON body is silently dropped in no-cors mode; form-encoded data is preserved)
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(k => params.append(k, data[k] || ''));
+
       await fetch(WEBHOOK_URL, {
         method:  'POST',
         mode:    'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(data)
+        body:    params
       });
 
-      // With no-cors, fetch resolves (type=opaque) on network success.
-      // Fire conversion events on successful network delivery
+      // no-cors resolves as opaque on network success — treat as saved
       if (typeof gtag === 'function') {
         gtag('event', 'conversion', { send_to: 'AW-XXXXXXXX/XXXXXXXXXX' });
       }
@@ -1242,7 +1239,6 @@
       window.location.href = 'thank-you.html';
 
     } catch (err) {
-      // Only reaches here on a network failure (offline, DNS error, etc.)
       console.error('Form submission error:', err);
       errBox.textContent = 'אירעה שגיאה בשליחת הטופס. אנא בדקו את החיבור לאינטרנט ונסו שנית.';
       errBox.classList.add('visible');
