@@ -4,138 +4,297 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>תודה! פרטיך התקבלו — בדיקת זכאות להחזר מס</title>
-
-  <!-- Google Tag Manager -->
-  <!-- הדבק כאן את קוד Google Tag Manager (head) -->
-
-  <!-- Meta Pixel -->
-  <!-- הדבק כאן את קוד Meta Pixel -->
-
-  <!-- Google Ads Conversion — מדידת המרה -->
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'AW-XXXXXXXXX');
-    gtag('event', 'conversion', {'send_to': 'AW-XXXXXXXXX/XXXXXXXXX'});
-  </script> -->
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="robots" content="noindex, nofollow" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --primary: #1a3a5c;
-      --success: #27ae60;
-      --bg: #f4f7fb;
-      --white: #ffffff;
-      --text: #2c3e50;
-      --text-light: #5d6d7e;
+      --navy:      #0f2d5e;
+      --navy-mid:  #1a4080;
+      --blue:      #2563eb;
+      --teal:      #0d9488;
+      --teal-light:#14b8a6;
+      --gray-50:   #f8fafc;
+      --gray-100:  #f1f5f9;
+      --gray-200:  #e2e8f0;
+      --gray-400:  #94a3b8;
+      --gray-600:  #475569;
+      --gray-700:  #334155;
+      --gray-900:  #0f172a;
+      --white:     #ffffff;
+      --green:     #16a34a;
+      --green-bg:  #f0fdf4;
+      --green-border: #bbf7d0;
     }
+
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Heebo', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, #1e4fa0 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      text-align: center;
+      padding: 24px 16px;
+      color: var(--gray-700);
     }
+
+    /* ===== CARD ===== */
     .card {
       background: var(--white);
-      border-radius: 16px;
-      box-shadow: 0 8px 40px rgba(26,58,92,0.14);
-      padding: 48px 36px;
-      max-width: 520px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25), 0 8px 20px rgba(0,0,0,.15);
+      padding: 52px 44px;
+      max-width: 560px;
       width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-    .checkmark {
-      width: 72px;
-      height: 72px;
-      background: var(--success);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      font-size: 2rem;
-      color: white;
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
     }
+
+    /* ===== SUCCESS ICON ===== */
+    .success-ring {
+      width: 88px; height: 88px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+    .success-ring svg {
+      width: 88px; height: 88px;
+    }
+    .success-circle {
+      fill: none;
+      stroke: var(--teal);
+      stroke-width: 3;
+      stroke-dasharray: 251;
+      stroke-dashoffset: 251;
+      animation: drawCircle .7s ease forwards .2s;
+    }
+    .success-check {
+      fill: none;
+      stroke: var(--teal);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: drawCheck .4s ease forwards .9s;
+    }
+    @keyframes drawCircle {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ===== TYPOGRAPHY ===== */
     h1 {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 12px;
-    }
-    p {
-      font-size: 1rem;
-      color: var(--text-light);
-      line-height: 1.7;
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
+      color: var(--gray-900);
+      font-weight: 700;
       margin-bottom: 10px;
+      line-height: 1.3;
     }
-    .highlight {
-      background: #eef6ff;
-      border-right: 4px solid var(--primary);
-      border-radius: 6px;
-      padding: 14px 16px;
-      margin: 20px 0;
-      font-size: 0.9rem;
-      color: var(--text);
+    .subtitle {
+      font-size: 1rem;
+      color: var(--gray-600);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* ===== NEXT STEPS ===== */
+    .next-steps {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 28px;
       text-align: right;
     }
-    .btn-home {
-      display: inline-block;
-      margin-top: 24px;
-      padding: 13px 32px;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: opacity 0.2s;
+    .next-steps-title {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 16px;
+      text-align: center;
     }
-    .btn-home:hover { opacity: 0.85; }
-    footer {
-      margin-top: 30px;
-      font-size: 0.75rem;
-      color: var(--text-light);
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .step-row:last-child { margin-bottom: 0; }
+    .step-num {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-text strong {
+      display: block;
+      font-size: .9rem;
+      color: var(--gray-900);
+      margin-bottom: 2px;
+    }
+    .step-text span {
+      font-size: .82rem;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+
+    /* ===== ALERT ===== */
+    .alert {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: right;
+    }
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .alert-text {
+      font-size: .83rem;
+      color: #92400e;
+      line-height: 1.55;
+    }
+
+    /* ===== DISCLAIMER ===== */
+    .disclaimer {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      font-size: .78rem;
+      color: var(--gray-400);
+      line-height: 1.6;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      color: var(--navy);
+      border: 2px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .btn-back:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    /* ===== FOOTER ===== */
+    .page-footer {
+      margin-top: 24px;
+      font-size: .75rem;
+      color: rgba(255,255,255,.45);
+      text-align: center;
+    }
+    .page-footer a { color: rgba(255,255,255,.45); }
+    .page-footer a:hover { color: rgba(255,255,255,.75); }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 22px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Google Tag Manager (noscript) -->
-<!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> -->
+  <div class="card">
 
-<div class="card">
-  <div class="checkmark">✓</div>
-  <h1>תודה רבה! פרטיך התקבלו בהצלחה.</h1>
-  <p>קיבלנו את פנייתך לבדיקת זכאות ראשונית להחזר מס.</p>
-  <p>נציג מקצועי ייצור עמך קשר בהקדם האפשרי.</p>
+    <!-- Animated check -->
+    <div class="success-ring">
+      <svg viewBox="0 0 88 88">
+        <circle class="success-circle" cx="44" cy="44" r="40" transform="rotate(-90 44 44)"/>
+        <path class="success-check" d="M26 44 l13 13 l23-24"/>
+      </svg>
+    </div>
 
-  <div class="highlight">
-    📞 <strong>שים לב:</strong> השיחה תתבצע ממספר שעשוי שלא להיות מוכר לך. אנא היה/י זמין/ה ועני/י לשיחות נכנסות.
+    <h1>תודה רבה!<br>פרטיך התקבלו בהצלחה.</h1>
+    <p class="subtitle">
+      קיבלנו את פנייתך לבדיקת זכאות ראשונית להחזר מס.<br>
+      נציג מקצועי ייצור עמך קשר בהקדם האפשרי.
+    </p>
+
+    <!-- Next steps -->
+    <div class="next-steps">
+      <p class="next-steps-title">מה קורה עכשיו?</p>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>קיבלנו את פרטיך</strong>
+          <span>הפנייה שלך נרשמה במערכת ומועברת לגורם המקצועי.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>חזרה מנציג</strong>
+          <span>נציג מקצועי יחזור אליך בהקדם לשיחת היכרות קצרה.</span>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>בדיקה ראשונית</strong>
+          <span>יבחנו יחד האם קיימת סבירות לזכאות — ללא התחייבות.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert">
+      <span class="alert-icon">📞</span>
+      <p class="alert-text">
+        <strong>שים לב:</strong> השיחה עשויה להגיע ממספר שאינו מוכר לך.
+        אנא היה/י זמין/ה ועני/י לשיחות נכנסות בימים הקרובים.
+      </p>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      אין בפנייתך כל התחייבות לקבלת החזר מס. הזכאות הסופית נקבעת אך ורק על ידי רשות המסים.
+      אתר זה אינו שייך לרשות המסים ואינו גוף ממשלתי.
+    </div>
+
+    <a href="/" class="btn-back">← חזרה לעמוד הראשי</a>
+
   </div>
 
-  <p style="font-size:0.85rem;">אין בפנייתך כל התחייבות לקבלת החזר מס. הזכאות הסופית נקבעת אך ורק על ידי רשות המסים.</p>
-
-  <a href="index.html" class="btn-home">חזרה לעמוד הראשי</a>
-</div>
-
-<footer>
-  אתר זה אינו שייך לרשות המסים ואינו גוף ממשלתי.
-</footer>
-
-<script>
-  // Meta Pixel Lead Event
-  // if (typeof fbq !== 'undefined') { fbq('track', 'Lead'); }
-</script>
+  <div class="page-footer">
+    <a href="privacy.html">מדיניות פרטיות</a> &nbsp;|&nbsp;
+    <a href="terms.html">תנאי שימוש</a>
+    <br>© 2024 כל הזכויות שמורות
+  </div>
 
 </body>
 </html>
