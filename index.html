@@ -1221,31 +1221,30 @@
     const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx0WJYYBOyYWMkW6slxFbwOAzI-jq4U2ll3nsLUL-dxtzfa2dHgEHZjZ8VIhU1BYYfD/exec';
 
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      // Google Apps Script requires no-cors mode due to redirect-based CORS handling.
+      // We send the request and treat a network-level success as a saved lead.
+      // The script itself validates and saves — if it fails internally it logs the error.
+      await fetch(WEBHOOK_URL, {
         method:  'POST',
+        mode:    'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(data)
       });
 
-      // Google Apps Script always returns HTTP 200 — must check JSON body for real status
-      let result = {};
-      try { result = await res.json(); } catch(e) { result = {}; }
-
-      if (res.ok && result.status === 'success') {
-        // Fire conversion events ONLY on confirmed success
-        if (typeof gtag === 'function') {
-          gtag('event', 'conversion', { send_to: 'AW-XXXXXXXX/XXXXXXXXXX' });
-        }
-        if (typeof fbq === 'function') {
-          fbq('track', 'Lead');
-        }
-        window.location.href = 'thank-you.html';
-      } else {
-        throw new Error(result.message || 'Server error: ' + res.status);
+      // With no-cors, fetch resolves (type=opaque) on network success.
+      // Fire conversion events on successful network delivery
+      if (typeof gtag === 'function') {
+        gtag('event', 'conversion', { send_to: 'AW-XXXXXXXX/XXXXXXXXXX' });
       }
+      if (typeof fbq === 'function') {
+        fbq('track', 'Lead');
+      }
+      window.location.href = 'thank-you.html';
+
     } catch (err) {
+      // Only reaches here on a network failure (offline, DNS error, etc.)
       console.error('Form submission error:', err);
-      errBox.textContent = 'אירעה שגיאה בשליחת הטופס. אנא נסו שנית בעוד מספר דקות.';
+      errBox.textContent = 'אירעה שגיאה בשליחת הטופס. אנא בדקו את החיבור לאינטרנט ונסו שנית.';
       errBox.classList.add('visible');
       btn.disabled    = false;
       btn.textContent = 'בדיקת זכאות ראשונית ←';
