@@ -8,6 +8,7 @@ plus music into an edited film.
 | `media-prep` | Probes messy WhatsApp/camera-roll media into a clean manifest. Rotation, HEIC, VFR, capture-time ordering |
 | `beat-sync` | Beat/downbeat/energy analysis, multi-song soundtrack assembly, and a beat-locked cut list |
 | `hebrew-titles` | Animated titles with correct RTL shaping, via libass. Intro cards, end cards, lower thirds |
+| `glass-shatter` | Breaks the frame like a pane of glass to reveal the next scene, with a synthesized break sound |
 | `video-montage` | Orchestrates the above into a finished render with beat-aligned transitions |
 
 ## Setup

@@ -26,6 +26,7 @@ re-renderable without redoing the analysis.
 media  ──▶ media-prep    ──▶ manifest.json
 music  ──▶ beat-sync     ──▶ music.wav + beats.json + cuts.json
 text   ──▶ hebrew-titles ──▶ intro.mp4 + outro.mp4
+                    └──────▶ glass-shatter (optional) ──▶ intro.mp4 + glass.wav
                              │
                              ▼
                         build_montage.py ──▶ montage.mp4
@@ -110,6 +111,15 @@ harder.
 moments people replay. Mark those shots `"duck": true` in `cuts.json` and give
 them a longer slot than the beat grid suggests. Music under a laugh at full
 volume wastes the laugh.
+
+**Segment audio is stripped during rendering.** Only the music bed, ducked clip
+audio, and anything passed via `--sfx PATH@SECONDS` reach the final mix. A sound
+baked into an intro clip - a glass break, a door slam - has to be re-placed on
+the finished timeline explicitly, at its absolute position:
+
+```bash
+--sfx work/glass.wav@6.40 --sfx work/whoosh.wav@41.2
+```
 
 **End on a still, not a cut.** The final shot before the end card should be a
 photograph held long enough to read, fading rather than cutting. Ending on motion

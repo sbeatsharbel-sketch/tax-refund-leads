@@ -162,7 +162,17 @@ def render_card(card, canvas, default_size, index, warnings):
     sizes = [int(l.get("size") or default_size) for l in lines]
     gap = int(max(sizes) * 0.42)
     block_height = sum(sizes) + gap * (len(lines) - 1)
-    cursor = canvas["height"] / 2 - block_height / 2
+    # "y" places the block's centre as a fraction of frame height, so cards that
+    # share screen time can be stacked instead of landing on top of each other.
+    centre_y = float(card.get("y", 0.5)) * canvas["height"]
+    cursor = centre_y - block_height / 2
+
+    top, bottom = cursor, cursor + block_height
+    limit = canvas["height"] * SAFE_MARGIN
+    if top < limit or bottom > canvas["height"] - limit:
+        warnings.append(
+            f"Card {index} sits outside the {int(SAFE_MARGIN * 100)}% safe area "
+            f"and may be cropped by some players. Adjust its \"y\" or line sizes.")
 
     events = []
     if card.get("scrim"):

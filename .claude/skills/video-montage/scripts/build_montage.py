@@ -217,6 +217,10 @@ def main():
     ap.add_argument("--overlay-ass", help="ASS subtitle file to burn over the finished montage")
     ap.add_argument("--duck-db", type=float, default=12.0, help="How far music drops under clip audio")
     ap.add_argument("--clip-audio-gain", type=float, default=1.4)
+    ap.add_argument("--sfx", action="append", metavar="PATH@SECONDS",
+                    help="Place a one-shot sound at a timeline position (repeatable), "
+                         "e.g. --sfx work/glass.wav@6.4")
+    ap.add_argument("--sfx-gain", type=float, default=1.0)
     ap.add_argument("--keep-segments", action="store_true")
     args = ap.parse_args()
 
@@ -394,6 +398,33 @@ def main():
             f"adelay={delay_ms}|{delay_ms}[{label}]")
         clip_audio_labels.append(label)
 
+    # One-shot sound effects placed at absolute timeline positions. Segment audio
+    # is stripped during rendering, so a sound baked into an intro clip would be
+    # lost; this puts it back on the finished timeline.
+    sfx_labels = []
+    for spec in args.sfx or []:
+        if "@" not in spec:
+            sys.exit(f"--sfx expects PATH@SECONDS, got {spec!r}")
+        raw_path, _, raw_time = spec.rpartition("@")
+        sfx_path = Path(raw_path).expanduser()
+        if not sfx_path.exists():
+            sys.exit(f"No such sfx file: {sfx_path}")
+        try:
+            at = float(raw_time)
+        except ValueError:
+            sys.exit(f"--sfx time must be a number of seconds, got {raw_time!r}")
+
+        idx = music_idx + 1 + len(audio_extra_inputs) + len(sfx_labels)
+        cmd += ["-i", str(sfx_path)]
+        delay_ms = int(round(at * 1000))
+        label = f"sfx{idx}"
+        parts.append(
+            f"[{idx}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
+            f"asetpts=PTS-STARTPTS,volume={args.sfx_gain},"
+            f"adelay={delay_ms}|{delay_ms}[{label}]")
+        sfx_labels.append(label)
+        print(f"  sfx: {sfx_path.name} at {at:.2f}s")
+
     music_chain = (f"[{music_idx}:a]aformat=sample_fmts=fltp:sample_rates=48000:"
                    f"channel_layouts=stereo")
     duck_expr = build_duck_expression(duck_windows, args.duck_db, 0.3)
@@ -404,9 +435,12 @@ def main():
     music_chain += f",apad,atrim=duration={acc_len:.4f},asetpts=PTS-STARTPTS[music]"
     parts.append(music_chain)
 
-    if clip_audio_labels:
-        inputs = "[music]" + "".join(f"[{l}]" for l in clip_audio_labels)
-        parts.append(f"{inputs}amix=inputs={1 + len(clip_audio_labels)}:"
+    extra_labels = clip_audio_labels + sfx_labels
+    if extra_labels:
+        inputs = "[music]" + "".join(f"[{l}]" for l in extra_labels)
+        # normalize=0 keeps the music at the level it was mastered to; amix's
+        # default would duck everything by 1/N as sources are added.
+        parts.append(f"{inputs}amix=inputs={1 + len(extra_labels)}:"
                      f"duration=first:normalize=0,"
                      f"alimiter=limit=0.95,aresample=48000[aout]")
     else:
