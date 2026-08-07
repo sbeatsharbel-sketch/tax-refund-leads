@@ -29,6 +29,28 @@ ffmpeg -hide_banner -buildconf | grep -E "libass|libfribidi|libharfbuzz"
 If `libass` is missing, stop and install a full ffmpeg build. There is no good
 workaround.
 
+## Never apply letter spacing to RTL text
+
+Any `\fsp` value - even 1 - makes libass render Hebrew and Arabic **backwards**,
+because letter spacing bypasses its bidi reordering. The text still appears, in
+the right font, at the right size, just with the glyphs in reverse order. It
+passes a casual look and only gets caught by actually reading the frame.
+
+`make_titles.py` strips `spacing` from any line containing RTL characters and
+warns. Get hierarchy from size, weight, and colour instead; those are stronger
+tools anyway.
+
+## Preview frames must be sampled after the fade
+
+`--still` renders one frame to compare looks quickly, and it samples the moment
+when every card has finished animating in. Sampling at t=0 instead shows a frame
+where anything carrying a `\fad` - rules, scrims, fading cards - is still fully
+transparent, which reads as "my divider line never rendered". Override with
+`--still-at SECONDS` when a card needs inspecting at a specific moment.
+
+The same trap applies when pulling a check frame with ffmpeg by hand: seek into
+the card, do not grab frame zero.
+
 ## Font choice is not cosmetic
 
 Most fonts have no Hebrew glyphs at all, and a missing glyph renders as a blank
@@ -38,9 +60,47 @@ box or silently falls back to something ugly. Verify before rendering:
 fc-list :lang=he family | sort -u
 ```
 
-`Noto Sans Hebrew` is the safe default - complete coverage, multiple weights,
-and it sits comfortably next to Latin text in a mixed line. `DejaVu Sans` works
-but looks dated at large display sizes.
+`Noto Sans Hebrew` is the safe fallback, but it is a UI font - at display sizes
+it reads as a system default, which is most of why a title card can look cheap.
+Install the Culmus family for faces actually designed for Hebrew display work:
+
+```bash
+apt-get install -y culmus fonts-ldco
+```
+
+| Font | Character | Use for |
+|---|---|---|
+| `Aharoni CLM` | Heavy, geometric, the classic Israeli poster face | Punch lines, single bold statements |
+| `Frank Ruehl CLM` | The standard Hebrew book serif | Anything that should feel considered or literary |
+| `Miriam CLM` | Clean, neutral sans | Setup lines, captions, credits |
+| `David CLM` | Calligraphic serif | Formal or ceremonial titles |
+
+Mixing a serif for the small text with a heavy sans for the big line is the
+easiest way to get hierarchy that does not depend on size alone.
+
+## Presets
+
+`--background` takes a preset that pairs a graded background with type settings
+that suit it. Each supplies a font, an accent colour, letterbox bars, film grain,
+and a vignette:
+
+| Preset | Look |
+|---|---|
+| `document` | Cool near-black, restrained, Miriam. Formal and understated |
+| `cinematic` | Warm amber glow from below, Frank Ruehl serif. The default |
+| `bold` | Deep blue wash, heavy Aharoni, high contrast. Graphic and loud |
+
+Inside a card, `"color": "accent"`, `"ink"`, or `"muted"` resolves against the
+preset's palette, so the same spec can be re-rendered in any look by changing one
+flag. `--still` renders a single PNG instead of a video, which makes comparing
+looks fast.
+
+Three things in those presets do most of the work, and they are worth carrying
+into any custom look:
+
+- **Letterbox bars.** Nothing else changes a frame's register so cheaply.
+- **Film grain.** Stops large flat gradients from banding on projectors, and reads as film rather than as a computer gradient.
+- **No hard outline.** A black outline around type is what makes a title look like a burned-in subtitle. On a controlled dark background, shadow alone carries it.
 
 ## Making titles
 
@@ -72,14 +132,13 @@ Then either burn it onto video, or render it as a standalone card:
 # Burn onto existing footage
 ffmpeg -i video.mp4 -vf "ass=work/titles.ass" -c:a copy out.mp4
 
-# Standalone card over a cinematic background
+# Standalone card, cinematic preset
 python3 scripts/make_titles.py --spec titles.json --render work/intro.mp4 \
-    --background gradient --duration 6
+    --background cinematic --duration 6
 ```
 
-`--background` takes `black`, `gradient` (a soft vignette that keeps text
-readable), or a path to an image or video, which gets blurred and darkened
-automatically so the text stays legible on top.
+`--background` also accepts `black` or a path to an image or video, which gets
+blurred and darkened automatically so the text stays legible on top.
 
 ## Animations
 

@@ -16,6 +16,79 @@ MIN_HOLD = 1.2       # seconds a card must sit still to be readable
 
 ANIMATIONS = {"fade", "zoom", "rise", "blur", "slide", "typewriter", "none"}
 
+# Presets pair a background treatment with the type settings that suit it.
+# Flat colour plus an outlined font is what makes a title look like a default;
+# these carry a graded background, grain, letterbox bars and no hard outline.
+STYLES = {
+    "document": {
+        "base": (10, 11, 13), "glow": (150, 165, 185), "glow_pos": (0.5, 0.30),
+        "glow_strength": 0.22, "glow_radius": 0.85, "grain": 7.0,
+        "vignette": 0.55, "letterbox": 2.39, "outline": 0, "shadow": 2.5,
+        "font": "Miriam CLM", "accent": "#C9A227", "ink": "#F2EFE9",
+        "muted": "#868C96",
+    },
+    "cinematic": {
+        "base": (13, 12, 10), "glow": (232, 170, 90), "glow_pos": (0.5, 0.72),
+        "glow_strength": 0.30, "glow_radius": 0.95, "grain": 9.0,
+        "vignette": 0.70, "letterbox": 2.39, "outline": 0, "shadow": 3.0,
+        "font": "Frank Ruehl CLM", "accent": "#E8C877", "ink": "#F5F0E6",
+        "muted": "#9A9188",
+    },
+    "bold": {
+        "base": (8, 9, 12), "glow": (70, 110, 220), "glow_pos": (0.22, 0.5),
+        "glow_strength": 0.34, "glow_radius": 1.05, "grain": 6.0,
+        "vignette": 0.45, "letterbox": 0, "outline": 0, "shadow": 3.5,
+        "font": "Aharoni CLM", "accent": "#F0B429", "ink": "#FFFFFF",
+        "muted": "#6E7681",
+    },
+}
+
+
+def make_background(style, w, h, seed=None):
+    """Render a graded background: base tint, off-centre glow, grain, vignette.
+
+    Built in numpy rather than with ffmpeg's geq because the gradients need to be
+    smooth and the grain fine - both are what separate this from a flat fill.
+    """
+    import numpy as np
+    from PIL import Image
+
+    rng = np.random.default_rng(seed)
+    ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+    nx = (xs - style["glow_pos"][0] * w) / (w * 0.5)
+    ny = (ys - style["glow_pos"][1] * h) / (h * 0.5)
+
+    # Smooth falloff from the light source; squared cosine avoids the hard edge
+    # a linear ramp leaves behind.
+    dist = np.sqrt(nx * nx + ny * ny) / max(style["glow_radius"], 1e-3)
+    falloff = np.clip(1.0 - dist, 0.0, 1.0) ** 2
+
+    base = np.array(style["base"], dtype=np.float32)
+    glow = np.array(style["glow"], dtype=np.float32)
+    img = base[None, None, :] + falloff[..., None] * (glow - base)[None, None, :] * style["glow_strength"]
+
+    # Vignette pulls the corners down so the eye stays on the centre.
+    vx = (xs - w / 2) / (w / 2)
+    vy = (ys - h / 2) / (h / 2)
+    vig = 1.0 - style["vignette"] * np.clip(np.sqrt(vx * vx + vy * vy) / 1.414, 0, 1) ** 1.8
+    img *= vig[..., None]
+
+    # Grain keeps large flat areas from banding on projectors and cheap panels,
+    # and reads as film rather than as a computer gradient.
+    if style["grain"] > 0:
+        img += rng.normal(0.0, style["grain"], (h, w, 1))
+
+    img = np.clip(img, 0, 255).astype(np.uint8)
+
+    if style.get("letterbox"):
+        # Cinemascope bars. Nothing else changes a frame's register this cheaply.
+        visible = int(w / style["letterbox"])
+        bar = max(0, (h - visible) // 2)
+        img[:bar] = 0
+        img[h - bar:] = 0
+
+    return Image.fromarray(img)
+
 
 def ass_color(hex_color, alpha=0):
     """#RRGGBB -> &HAABBGGRR&  (ASS stores BGR, and alpha is inverted)."""
@@ -41,13 +114,28 @@ def escape(text):
     return text.replace("\\", "\\\\").replace("{", "\\{").replace("}", "\\}")
 
 
-def build_header(canvas, font, default_size):
+# Hebrew, Arabic, and their presentation forms.
+RTL_RANGES = ((0x0590, 0x05FF), (0x0600, 0x06FF), (0x0700, 0x074F),
+              (0x0750, 0x077F), (0xFB1D, 0xFDFF), (0xFE70, 0xFEFF))
+
+
+def has_rtl(text):
+    return any(any(lo <= ord(ch) <= hi for lo, hi in RTL_RANGES) for ch in text)
+
+
+def build_header(canvas, font, default_size, outline=None, shadow=None):
     w, h = canvas["width"], canvas["height"]
     margin_x = int(w * SAFE_MARGIN)
     margin_y = int(h * SAFE_MARGIN)
-    # Outline plus shadow keeps text legible over bright or busy footage.
-    outline = max(2, round(default_size * 0.035))
-    shadow = max(1, round(default_size * 0.02))
+    # A hard outline is what makes titles look like burned-in subtitles. It is
+    # only worth paying for over bright or busy footage; on a controlled dark
+    # background a soft shadow carries the text on its own.
+    if outline is None:
+        outline = max(2, round(default_size * 0.035))
+    if shadow is None:
+        shadow = max(1, round(default_size * 0.02))
+    outline = int(round(float(outline)))
+    shadow = int(round(float(shadow)))
     return "\n".join([
         "[Script Info]",
         "ScriptType: v4.00+",
@@ -84,6 +172,7 @@ def line_tags(line, canvas, animation, start, end, y, in_dur, out_dur):
     if line.get("color"):
         tags.append(f"\\c{ass_color(line['color'])}")
     if line.get("spacing"):
+        # Letter spacing is dropped for RTL text upstream - see check_spacing.
         tags.append(f"\\fsp{line['spacing']}")
 
     fade_in_ms = int(in_dur * 1000)
@@ -133,7 +222,27 @@ def typewriter_events(line, canvas, start, end, y, style_prefix, out_dur):
     return events
 
 
-def render_card(card, canvas, default_size, index, warnings):
+def rule_event(card, canvas, start, end, y, in_dur, out_dur, palette):
+    """A thin horizontal rule. Small, but it gives a centred card a spine."""
+    spec = card["rule"]
+    spec = {} if spec is True else dict(spec)
+    width = int(spec.get("width", canvas["width"] * 0.13))
+    thick = max(1, int(spec.get("thickness", 3)))
+    color = spec.get("color", palette.get("accent", "#C9A227"))
+    if color in palette:
+        color = palette[color]
+    alpha = int(spec.get("alpha", 0x20))
+    cx = canvas["width"] // 2
+    x0, x1 = cx - width // 2, cx + width // 2
+    y0, y1 = int(y), int(y) + thick
+    draw = (f"{{\\an7\\pos(0,0)\\p1\\c{ass_color(color)}\\alpha&H{alpha:02X}&"
+            f"\\bord0\\shad0\\fad({int(in_dur * 1000)},{int(out_dur * 1000)})}}"
+            f"m {x0} {y0} l {x1} {y0} l {x1} {y1} l {x0} {y1}{{\\p0}}")
+    return f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Default,,0,0,0,,{draw}"
+
+
+def render_card(card, canvas, default_size, index, warnings, palette=None):
+    palette = palette or {}
     start = float(card["start"])
     end = float(card["end"])
     duration = end - start
@@ -186,6 +295,11 @@ def render_card(card, canvas, default_size, index, warnings):
                f"m 0 {top} l {w} {top} l {w} {bottom} l 0 {bottom}{{\\p0}}"
         events.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Default,,0,0,0,,{draw}")
 
+    if card.get("rule"):
+        gap_above = int(max(sizes) * 0.55)
+        events.append(rule_event(card, canvas, start, end,
+                                 cursor - gap_above, in_dur, out_dur, palette))
+
     for i, line in enumerate(lines):
         y = cursor + sizes[i] / 2
         cursor += sizes[i] + gap
@@ -215,22 +329,31 @@ def check_font(font):
     return True
 
 
-def render_video(ass_path, out_path, canvas, duration, background, fps):
+def render_video(ass_path, out_path, canvas, duration, background, fps,
+                 push=0.0, work_dir=None, seed=None, still=False):
     w, h = canvas["width"], canvas["height"]
     cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
+    frames = max(2, int(round(duration * fps)))
 
-    if background in ("black", "gradient"):
+    if background in STYLES:
+        bg_path = Path(work_dir or out_path.parent) / f"_bg_{background}.png"
+        bg_path.parent.mkdir(parents=True, exist_ok=True)
+        make_background(STYLES[background], w, h, seed).save(bg_path)
+        cmd += ["-loop", "1", "-framerate", str(fps), "-i", str(bg_path)]
+        vf = ""
+        if push > 0:
+            # A background that breathes while the text stays pin-sharp. Nothing
+            # in a real title sequence is ever perfectly still.
+            over = 1.0 + push
+            src_w, src_h = int(w * over) // 2 * 2, int(h * over) // 2 * 2
+            vf = (f"scale={src_w}:{src_h},"
+                  f"zoompan=z='{over:.4f}-{push:.4f}*on/{frames - 1}':"
+                  f"x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/2':"
+                  f"d=1:s={w}x{h}:fps={fps},")
+        vf += "format=yuv420p,"
+    elif background in ("black", "gradient"):
         cmd += ["-f", "lavfi", "-i", f"color=c=black:s={w}x{h}:d={duration}:r={fps}"]
-        if background == "gradient":
-            # Radial falloff keeps the centre bright enough for text and darkens
-            # the edges, which reads as cinematic rather than flat black.
-            vf = ("format=gbrp,geq="
-                  "r='24+40*(1-hypot((X-W/2)/(W/2),(Y-H/2)/(H/2)))':"
-                  "g='26+42*(1-hypot((X-W/2)/(W/2),(Y-H/2)/(H/2)))':"
-                  "b='34+52*(1-hypot((X-W/2)/(W/2),(Y-H/2)/(H/2)))',"
-                  "noise=alls=6:allf=t+u,format=yuv420p,")
-        else:
-            vf = "format=yuv420p,"
+        vf = "format=yuv420p,"
     else:
         src = Path(background).expanduser()
         if not src.exists():
@@ -242,8 +365,15 @@ def render_video(ass_path, out_path, canvas, duration, background, fps):
               f"fps={fps},format=yuv420p,")
 
     vf += f"ass={ass_path}"
-    cmd += ["-t", str(duration), "-vf", vf, "-c:v", "libx264", "-preset", "medium",
-            "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(fps), str(out_path)]
+    if still:
+        # Output-side seek, past the fade-ins. A frame grabbed at t=0 shows every
+        # \fad element at zero opacity, which looks exactly like it failed to
+        # render - the subtitle filter is applied before this seek discards frames.
+        cmd += ["-ss", f"{float(still):.3f}", "-vf", vf, "-frames:v", "1", str(out_path)]
+    else:
+        cmd += ["-vf", vf, "-frames:v", str(frames),
+                "-c:v", "libx264", "-preset", "medium",
+                "-crf", "17", "-pix_fmt", "yuv420p", "-r", str(fps), str(out_path)]
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
@@ -256,29 +386,71 @@ def main():
     ap.add_argument("--spec", required=True, help="JSON spec describing the cards")
     ap.add_argument("--out", default="work/titles.ass", help="ASS output path")
     ap.add_argument("--render", help="Also render a standalone video to this path")
-    ap.add_argument("--background", default="gradient",
-                    help="black | gradient | path to an image or video")
+    ap.add_argument("--background", default=None,
+                    help=f"{' | '.join(STYLES)} | black | path to an image or video "
+                         f"(default: the spec's \"style\", else 'cinematic')")
     ap.add_argument("--duration", type=float, help="Render length (default: last card end + 0.5s)")
     ap.add_argument("--fps", type=int, default=30)
+    ap.add_argument("--push", type=float, default=0.03,
+                    help="Slow background zoom over the card, 0 to disable")
+    ap.add_argument("--still", action="store_true",
+                    help="Render a single PNG instead of a video, for fast look tests")
+    ap.add_argument("--still-at", type=float, default=None,
+                    help="Timestamp for --still (default: once every card has faded in)")
+    ap.add_argument("--seed", type=int, default=7, help="Grain pattern seed")
     args = ap.parse_args()
 
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
     canvas = spec.get("canvas") or {"width": 1920, "height": 1080}
     canvas = {"width": int(canvas.get("width", 1920)), "height": int(canvas.get("height", 1080))}
-    font = spec.get("font", "Noto Sans Hebrew")
-    default_size = int(spec.get("size") or round(canvas["height"] * 0.085))
     cards = spec.get("cards") or []
     if not cards:
         sys.exit("Spec contains no cards")
 
+    style_name = args.background or spec.get("style") or "cinematic"
+    style = STYLES.get(style_name)
+
+    # The preset supplies the font and type weight that suit its background; an
+    # explicit value in the spec still wins.
+    font = spec.get("font") or (style["font"] if style else "Noto Sans Hebrew")
+    default_size = int(spec.get("size") or round(canvas["height"] * 0.085))
+    outline = spec.get("outline", style["outline"] if style else None)
+    shadow = spec.get("shadow", style["shadow"] if style else None)
+
     check_font(font)
+
+    # libass renders RTL text backwards as soon as \fsp is applied - any value,
+    # even 1 - because letter spacing bypasses its bidi reordering. Silently
+    # shipping reversed Hebrew is far worse than losing the tracking, so strip it.
+    stripped = 0
+    for card in cards:
+        for line in card.get("lines") or []:
+            if line.get("spacing") and has_rtl(line.get("text", "")):
+                line.pop("spacing")
+                stripped += 1
+    if stripped:
+        print(f"WARNING: dropped letter spacing on {stripped} line(s) containing "
+              f"right-to-left text. libass reverses RTL glyph order when \\fsp is "
+              f"set, so the text would have rendered backwards. Use size and "
+              f"colour for hierarchy instead.", file=sys.stderr)
+
+    # Let cards refer to the preset's palette by name instead of repeating hexes.
+    palette = {"accent": style["accent"], "ink": style["ink"], "muted": style["muted"]} \
+        if style else {}
+    for card in cards:
+        for line in card.get("lines") or []:
+            if line.get("color") in palette:
+                line["color"] = palette[line["color"]]
+            elif not line.get("color") and palette:
+                line["color"] = palette["ink"]
 
     warnings = []
     events = []
     for i, card in enumerate(cards):
-        events += render_card(card, canvas, default_size, i, warnings)
+        events += render_card(card, canvas, default_size, i, warnings, palette)
 
-    ass = build_header(canvas, font, default_size) + "\n" + "\n".join(events) + "\n"
+    ass = build_header(canvas, font, default_size, outline, shadow) \
+        + "\n" + "\n".join(events) + "\n"
     out = Path(args.out).expanduser()
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(ass, encoding="utf-8")
@@ -291,8 +463,23 @@ def main():
         duration = args.duration or (max(float(c["end"]) for c in cards) + 0.5)
         render_out = Path(args.render).expanduser()
         render_out.parent.mkdir(parents=True, exist_ok=True)
-        render_video(out, render_out, canvas, duration, args.background, args.fps)
-        print(f"Rendered {render_out}  ({duration:.2f}s, {canvas['width']}x{canvas['height']})")
+        still_at = None
+        if args.still:
+            # Land after the slowest fade-in but before the earliest card leaves,
+            # so the preview shows every element at full opacity.
+            settled = max(float(c["start"]) + float(c.get("fade_in", 0.45))
+                          for c in cards) + 0.2
+            earliest_end = min(float(c["end"]) for c in cards)
+            still_at = args.still_at if args.still_at is not None else \
+                min(settled, max(0.0, earliest_end - 0.15))
+
+        render_video(out, render_out, canvas, duration, style_name, args.fps,
+                     push=args.push, work_dir=out.parent, seed=args.seed,
+                     still=still_at)
+        print(f"Rendered {render_out}  "
+              + (f"(single frame at {still_at:.2f}s, " if args.still
+                 else f"({duration:.2f}s, ")
+              + f"{canvas['width']}x{canvas['height']}, style '{style_name}')")
 
     print("Burn onto footage with:  "
           f"ffmpeg -i input.mp4 -vf \"ass={out}\" -c:a copy output.mp4")
