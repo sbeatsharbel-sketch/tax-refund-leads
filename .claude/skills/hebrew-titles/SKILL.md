@@ -140,6 +140,36 @@ python3 scripts/make_titles.py --spec titles.json --render work/intro.mp4 \
 `--background` also accepts `black` or a path to an image or video, which gets
 blurred and darkened automatically so the text stays legible on top.
 
+## Put titles over the footage, not over a void
+
+Centred text on an empty background is the default that makes a title card look
+cheap, and no amount of gradient work rescues it. The material is what people
+came to see - open on it.
+
+```bash
+# The montage is already running; the title sits on top of it
+python3 ../video-montage/scripts/build_montage.py ... --out work/intro_bg.mp4
+
+python3 scripts/make_titles.py --spec intro.json --render work/titled.mp4 \
+    --background work/intro_bg.mp4 \
+    --bg-blur 6 --bg-darken 0.04 --scrim right
+```
+
+**Use a scrim, not a global darken.** Dropping the brightness of the whole frame
+to make text readable also flattens the photograph. `--scrim right` lays a
+one-sided gradient of black across the side the text sits on, so the image stays
+at full brightness everywhere else. This single choice does more for the look
+than any font decision.
+
+**Keep the blur low.** Around 5-8 sigma. Enough to stop detail competing with the
+letterforms, not so much that the footage becomes wallpaper. Above 20 nobody can
+tell what the photo was, and the title may as well be over a gradient.
+
+**Anchor the text, do not centre it.** `"align": "right"` puts the block on the
+margin, which for Hebrew is the natural edge to read from, and leaves the open
+side of the frame for the image. Asymmetry is what makes a frame look composed
+rather than defaulted.
+
 ## Animations
 
 | Name | Motion | Use for |
@@ -150,9 +180,16 @@ blurred and darkened automatically so the text stays legible on top.
 | `blur` | Focus pulls from blurred to sharp | Dramatic single-word reveals |
 | `slide` | Enters from the right | Hebrew-native motion - matches reading direction |
 | `typewriter` | Character by character | Lists, credits, a punchline landing on a beat |
+| `wordwise` | One word at a time, each settling from slightly oversized | Statements that build. The strongest option for a punch line |
 
 For Hebrew, prefer `slide` over a left-entering slide. Motion that runs against
 reading direction reads as wrong even to viewers who cannot say why.
+
+`wordwise` pairs especially well with `"align": "right"`: each cumulative prefix
+is a complete logical string, so bidi lays it out correctly and the line grows
+leftward - the direction the eye is already travelling. Control the rate with
+`"pace"` (seconds per word); around 0.3 lets each word land, below 0.15 it reads
+as a flicker rather than a build.
 
 ## Rules that keep titles readable
 

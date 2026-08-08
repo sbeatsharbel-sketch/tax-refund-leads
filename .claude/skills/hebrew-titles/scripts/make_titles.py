@@ -14,7 +14,20 @@ from pathlib import Path
 SAFE_MARGIN = 0.06   # keep text this far from every edge
 MIN_HOLD = 1.2       # seconds a card must sit still to be readable
 
-ANIMATIONS = {"fade", "zoom", "rise", "blur", "slide", "typewriter", "none"}
+ANIMATIONS = {"fade", "zoom", "rise", "blur", "slide", "typewriter", "wordwise", "none"}
+
+# ASS numpad alignment codes for a vertically centred anchor.
+ALIGN_CODES = {"left": 4, "center": 5, "right": 6}
+
+
+def anchor_x(align, canvas):
+    """Horizontal anchor for a card, respecting the safe margin."""
+    margin = int(canvas["width"] * SAFE_MARGIN)
+    if align == "right":
+        return canvas["width"] - margin
+    if align == "left":
+        return margin
+    return canvas["width"] // 2
 
 # Presets pair a background treatment with the type settings that suit it.
 # Flat colour plus an outlined font is what makes a title look like a default;
@@ -90,6 +103,33 @@ def make_background(style, w, h, seed=None):
     return Image.fromarray(img)
 
 
+def make_scrim(direction, strength, w, h):
+    """A one-sided gradient of black, opaque where the text sits and clear elsewhere.
+
+    Darkening the whole frame to make text readable also flattens the photograph
+    behind it. A scrim buys the same contrast while leaving most of the image at
+    full brightness, which is why it is what title sequences actually use.
+    """
+    import numpy as np
+    from PIL import Image
+
+    ramp = np.linspace(0.0, 1.0, w if direction in ("left", "right") else h,
+                       dtype=np.float32)
+    if direction in ("left", "top"):
+        ramp = ramp[::-1]
+    # Ease in so the scrim has no visible starting edge.
+    ramp = np.clip(ramp, 0, 1) ** 2.2 * strength
+
+    if direction in ("left", "right"):
+        alpha = np.tile(ramp[None, :], (h, 1))
+    else:
+        alpha = np.tile(ramp[:, None], (1, w))
+
+    rgba = np.zeros((h, w, 4), dtype=np.uint8)
+    rgba[..., 3] = (alpha * 255).astype(np.uint8)
+    return Image.fromarray(rgba, mode="RGBA")
+
+
 def ass_color(hex_color, alpha=0):
     """#RRGGBB -> &HAABBGGRR&  (ASS stores BGR, and alpha is inverted)."""
     h = hex_color.lstrip("#")
@@ -158,9 +198,11 @@ def build_header(canvas, font, default_size, outline=None, shadow=None):
     ])
 
 
-def line_tags(line, canvas, animation, start, end, y, in_dur, out_dur):
+def line_tags(line, canvas, animation, start, end, y, in_dur, out_dur, align="center"):
     """Build the ASS override tags that position and animate one line of text."""
-    tags = [f"\\an5\\pos({canvas['width'] // 2},{int(y)})"]
+    an = ALIGN_CODES.get(align, 5)
+    ax = anchor_x(align, canvas)
+    tags = [f"\\an{an}\\pos({ax},{int(y)})"]
 
     size = line.get("size")
     if size:
@@ -188,8 +230,8 @@ def line_tags(line, canvas, animation, start, end, y, in_dur, out_dur):
         tags.append(f"\\fscx108\\fscy108\\t(0,{fade_in_ms},\\fscx100\\fscy100)")
     elif animation == "rise":
         drift = int(canvas["height"] * 0.035)
-        tags[0] = (f"\\an5\\move({canvas['width'] // 2},{int(y) + drift},"
-                   f"{canvas['width'] // 2},{int(y)},0,{fade_in_ms})")
+        tags[0] = (f"\\an{an}\\move({ax},{int(y) + drift},"
+                   f"{ax},{int(y)},0,{fade_in_ms})")
         tags.append(f"\\fad({fade_in_ms},{fade_out_ms})")
     elif animation == "blur":
         tags.append(f"\\fad({fade_in_ms},{fade_out_ms})")
@@ -197,11 +239,41 @@ def line_tags(line, canvas, animation, start, end, y, in_dur, out_dur):
     elif animation == "slide":
         # Enters from the right, matching Hebrew reading direction.
         off = int(canvas["width"] * 0.28)
-        tags[0] = (f"\\an5\\move({canvas['width'] // 2 + off},{int(y)},"
-                   f"{canvas['width'] // 2},{int(y)},0,{fade_in_ms})")
+        tags[0] = (f"\\an{an}\\move({ax + off},{int(y)},"
+                   f"{ax},{int(y)},0,{fade_in_ms})")
         tags.append(f"\\fad({fade_in_ms},{fade_out_ms})")
+    elif animation == "wordwise":
+        # Per-word events are emitted separately; this is just the base style.
+        pass
 
     return "{" + "".join(tags) + "}"
+
+
+def wordwise_events(line, canvas, start, end, y, style_prefix, out_dur, pace=0.20):
+    """Reveal one word at a time, each landing with a small settle.
+
+    For Hebrew this reads especially well right-aligned: each cumulative prefix
+    is a complete logical string, so bidi lays it out correctly and the line
+    grows leftward - the direction the eye is already travelling.
+    """
+    words = line["text"].split()
+    if len(words) < 2:
+        return None
+    span = end - start
+    step = min(pace, (span * 0.55) / len(words))
+    events = []
+    for i in range(1, len(words) + 1):
+        ev_start = start + step * (i - 1)
+        ev_end = end if i == len(words) else start + step * i
+        partial = escape(" ".join(words[:i]))
+        extra = f"\\fad(0,{int(out_dur * 1000)})" if i == len(words) else ""
+        # Each new word arrives fractionally oversized and settles - it reads as
+        # weight landing rather than text switching on.
+        extra += "\\fscx104\\fscy104\\t(0,90,\\fscx100\\fscy100)"
+        tag = style_prefix[:-1] + extra + "}"
+        events.append(
+            f"Dialogue: 1,{ass_time(ev_start)},{ass_time(ev_end)},Default,,0,0,0,,{tag}{partial}")
+    return events
 
 
 def typewriter_events(line, canvas, start, end, y, style_prefix, out_dur):
@@ -247,6 +319,7 @@ def render_card(card, canvas, default_size, index, warnings, palette=None):
     end = float(card["end"])
     duration = end - start
     animation = card.get("animation", "fade")
+    align = card.get("align", "center")
     if animation not in ANIMATIONS:
         sys.exit(f"Card {index}: unknown animation {animation!r}. "
                  f"Choose from {', '.join(sorted(ANIMATIONS))}")
@@ -303,9 +376,19 @@ def render_card(card, canvas, default_size, index, warnings, palette=None):
     for i, line in enumerate(lines):
         y = cursor + sizes[i] / 2
         cursor += sizes[i] + gap
-        prefix = line_tags(line, canvas, animation, start, end, y, in_dur, out_dur)
+        prefix = line_tags(line, canvas, animation, start, end, y, in_dur, out_dur, align)
         if animation == "typewriter":
             events += typewriter_events(line, canvas, start, end, y, prefix, out_dur)
+        elif animation == "wordwise":
+            worded = wordwise_events(line, canvas, start, end, y, prefix, out_dur,
+                                     pace=float(card.get("pace", 0.20)))
+            if worded is None:  # single word: nothing to stagger
+                events.append(
+                    f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Default,,0,0,0,,"
+                    f"{prefix[:-1]}\\fad({int(in_dur * 1000)},{int(out_dur * 1000)})}}"
+                    f"{escape(line['text'])}")
+            else:
+                events += worded
         else:
             events.append(
                 f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Default,,0,0,0,,"
@@ -330,7 +413,10 @@ def check_font(font):
 
 
 def render_video(ass_path, out_path, canvas, duration, background, fps,
-                 push=0.0, work_dir=None, seed=None, still=False):
+                 push=0.0, work_dir=None, seed=None, still=False, grade=None):
+    grade = grade or {"blur": 14, "darken": 0.16, "saturation": 0.8,
+                      "letterbox": 2.39, "grain": 5, "scrim": "right",
+                      "scrim_strength": 0.82}
     w, h = canvas["width"], canvas["height"]
     cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
     frames = max(2, int(round(duration * fps)))
@@ -359,10 +445,52 @@ def render_video(ass_path, out_path, canvas, duration, background, fps,
         if not src.exists():
             sys.exit(f"Background not found: {src}")
         cmd += ["-stream_loop", "-1", "-i", str(src)]
-        # Blur and darken so the title stays legible over whatever is behind it.
+        # Knock the footage back enough for text to read, but not so far that the
+        # photographs stop being the point. Heavy blur and a global brightness cut
+        # turn real material into wallpaper - the mistake that makes a title look
+        # generic. Prefer a directional scrim: shade only where the text sits.
         vf = (f"scale={w}:{h}:force_original_aspect_ratio=increase,"
-              f"crop={w}:{h},gblur=sigma=28,eq=brightness=-0.22:saturation=0.7,"
-              f"fps={fps},format=yuv420p,")
+              f"crop={w}:{h},gblur=sigma={grade['blur']},"
+              f"eq=brightness={-abs(grade['darken']):.3f}:saturation={grade['saturation']},"
+              f"fps={fps},")
+        if grade.get("grain"):
+            vf += f"noise=alls={int(grade['grain'])}:allf=t+u,"
+        vf += "format=yuv420p"
+
+        scrim_dir = grade.get("scrim")
+        if scrim_dir and scrim_dir != "none":
+            scrim_path = Path(work_dir or out_path.parent) / "_scrim.png"
+            make_scrim(scrim_dir, float(grade.get("scrim_strength", 0.82)),
+                       w, h).save(scrim_path)
+            cmd += ["-i", str(scrim_path)]
+            vf = (f"[0:v]{vf}[base];[1:v]format=rgba[sc];"
+                  f"[base][sc]overlay=0:0:format=auto")
+            filter_is_complex = True
+        else:
+            vf += ","
+            filter_is_complex = False
+
+        if grade.get("letterbox"):
+            visible = int(w / grade["letterbox"])
+            bar = max(0, (h - visible) // 2)
+            if bar:
+                box = (f"drawbox=x=0:y=0:w={w}:h={bar}:color=black@1:t=fill,"
+                       f"drawbox=x=0:y={h - bar}:w={w}:h={bar}:color=black@1:t=fill")
+                vf += (box + ",") if not filter_is_complex else ("," + box)
+
+        if filter_is_complex:
+            vf += f",ass={ass_path}[v]"
+            cmd += ["-filter_complex", vf, "-map", "[v]"]
+            if still:
+                cmd += ["-ss", f"{float(still):.3f}", "-frames:v", "1", str(out_path)]
+            else:
+                cmd += ["-frames:v", str(frames), "-c:v", "libx264", "-preset", "medium",
+                        "-crf", "17", "-pix_fmt", "yuv420p", "-r", str(fps), str(out_path)]
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                print(result.stderr, file=sys.stderr)
+                sys.exit("ffmpeg failed rendering the title card")
+            return
 
     vf += f"ass={ass_path}"
     if still:
@@ -398,6 +526,17 @@ def main():
     ap.add_argument("--still-at", type=float, default=None,
                     help="Timestamp for --still (default: once every card has faded in)")
     ap.add_argument("--seed", type=int, default=7, help="Grain pattern seed")
+    ap.add_argument("--bg-blur", type=float, default=14,
+                    help="Blur applied to a media background (lower keeps the photo readable)")
+    ap.add_argument("--bg-darken", type=float, default=0.16)
+    ap.add_argument("--bg-saturation", type=float, default=0.8)
+    ap.add_argument("--letterbox", type=float, default=2.39,
+                    help="Aspect for the black bars, 0 for none")
+    ap.add_argument("--grain", type=float, default=5)
+    ap.add_argument("--scrim", choices=["right", "left", "top", "bottom", "none"],
+                    default="right",
+                    help="Directional shade for text to sit on, over a media background")
+    ap.add_argument("--scrim-strength", type=float, default=0.82)
     args = ap.parse_args()
 
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
@@ -475,7 +614,11 @@ def main():
 
         render_video(out, render_out, canvas, duration, style_name, args.fps,
                      push=args.push, work_dir=out.parent, seed=args.seed,
-                     still=still_at)
+                     still=still_at,
+                     grade={"blur": args.bg_blur, "darken": args.bg_darken,
+                            "saturation": args.bg_saturation,
+                            "letterbox": args.letterbox, "grain": args.grain,
+                            "scrim": args.scrim, "scrim_strength": args.scrim_strength})
         print(f"Rendered {render_out}  "
               + (f"(single frame at {still_at:.2f}s, " if args.still
                  else f"({duration:.2f}s, ")
