@@ -16,6 +16,13 @@ step() { printf '\n\033[36m== %s\033[0m\n' "$1"; }
 step "brand assets"
 python3 scripts/extract_brand.py
 
+step "score"
+if ls assets/source/music/*.wav >/dev/null 2>&1; then
+  echo "  music already present, skipping composition"
+else
+  python3 scripts/score.py
+fi
+
 step "text layer"
 python3 scripts/textgen.py
 

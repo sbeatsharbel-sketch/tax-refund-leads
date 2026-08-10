@@ -13,3 +13,6 @@ assets/source/brand/*.png
 # Python
 __pycache__/
 *.pyc
+
+# Generated score - rebuildable with scripts/score.py (17 MB WAV)
+assets/source/music/*.wav

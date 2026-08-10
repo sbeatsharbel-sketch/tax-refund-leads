@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 """Placeholder clips for shots whose source has not arrived.
 
-Dark navy, shot ID and description in white, plus the shot's real on-screen
-text at its real timing - so a full-length rough cut can be screened for
-pacing today and gaps filled as material arrives.
+Each card carries the brand's particle background, an abstract line-art motif
+for that shot, and a slow push-in - so the rough cut reads as a film rather
+than a slide deck, and the pacing can actually be judged.
+
+The lower third (y 780-900) is kept clear on every card, because the shot's
+real on-screen caption is composited there at its real timing.
 """
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
 from filmlib import (ROOT, W, H, FPS, BG, CYAN, MAGENTA, SILVER, font,
-                     centred_line, left_line, run, INTERMEDIATE)
+                     left_line, run, INTERMEDIATE)
+import shotart
 
 SHOTS = ROOT / "build" / "shots"
 TEXT = ROOT / "build" / "text"
+
+OVERSCAN = 1.10          # still is rendered larger, then pushed into
+PUSH = 0.085             # total zoom travel across the shot
 
 # Which text PNG belongs to which shot, and when it appears inside the shot.
 SHOT_TEXT = {
@@ -30,68 +37,89 @@ SHOT_TEXT = {
 }
 
 
-def card(shot):
-    """Static placeholder background for one shot."""
-    im = Image.new("RGB", (W, H), BG)
-    d = ImageDraw.Draw(im, "RGBA")
-    d.rectangle([0, 0, W, 6], fill=MAGENTA + (200,))
-    d.rounded_rectangle([120, 120, W - 120, H - 120], radius=6,
-                        outline=(255, 255, 255, 34), width=2)
-
-    left_line(im, "PLACEHOLDER", font("sans_semibold", 42), 168, 168,
-              MAGENTA, tracking=8)
-    left_line(im, f"{shot['id']}   {shot['section'].upper()}",
-              font("sans_semibold", 58), 168, 250, CYAN, tracking=4)
-
-    words, lines, cur = shot["content"].split(), [], []
+def _wrap(text, fnt, max_w):
     probe = ImageDraw.Draw(Image.new("RGB", (10, 10)))
-    f = font("sans", 46)
-    for wd in words:
-        if probe.textlength(" ".join(cur + [wd]), font=f) <= W - 460 or not cur:
-            cur.append(wd)
+    lines, cur = [], []
+    for word in text.split():
+        if probe.textlength(" ".join(cur + [word]), font=fnt) <= max_w or not cur:
+            cur.append(word)
         else:
             lines.append(" ".join(cur))
-            cur = [wd]
+            cur = [word]
     if cur:
         lines.append(" ".join(cur))
-    y = 380
-    for ln in lines:
-        left_line(im, ln, f, 168, y, SILVER)
-        y += 62
+    return lines
 
-    meta = (f"{shot['dur']:g}s   ·   source: {shot['source_kind']}   ·   "
-            f"in @ {int(shot['start']) // 60}:{int(shot['start']) % 60:02d}")
-    left_line(im, meta, font("sans", 40), 168, H - 220, (150, 165, 185), tracking=1)
-    if shot.get("input"):
-        left_line(im, f"awaiting: {shot['input']}", font("sans", 40), 168,
-                  H - 164, (150, 165, 185))
-    return im
+
+def card(shot):
+    """Full-frame placeholder still: particle field + motif + shot identity."""
+    from particles import Field
+    seed = 40 + int(shot["id"][1:])
+    fld = Field(n=88, seed=seed, speed=0.6)
+    for _ in range(seed * 3):
+        fld.step()
+    im = fld.render(seed * 0.7).convert("RGBA")
+
+    art = shotart.for_shot(shot["id"])
+    if art is not None:
+        im.alpha_composite(art)
+
+    d = ImageDraw.Draw(im, "RGBA")
+    d.rectangle([0, 0, W, 5], fill=MAGENTA + (190,))
+
+    left_line(im, "PLACEHOLDER", font("sans_semibold", 40), 120, 96,
+              MAGENTA, tracking=9)
+    left_line(im, f"{shot['id']}   {shot['section'].upper()}",
+              font("sans_semibold", 56), 120, 156, CYAN, tracking=4)
+
+    f = font("sans", 46)
+    y = 250
+    for ln in _wrap(shot["content"], f, 860):
+        left_line(im, ln, f, 120, y, SILVER)
+        y += 60
+
+    # Metadata sits below the caption band so the two can never collide.
+    meta = (f"{shot['dur']:g}s   ·   {shot['source_kind']}   ·   in @ "
+            f"{int(shot['start']) // 60}:{int(shot['start']) % 60:02d}"
+            f"   ·   awaiting {Path(shot.get('input') or '-').name}")
+    left_line(im, meta, font("sans", 40), 120, 964, (128, 146, 168), tracking=1)
+    return im.convert("RGB")
 
 
 def build(shot, render_dur, out=None):
     SHOTS.mkdir(parents=True, exist_ok=True)
     out = Path(out) if out else SHOTS / f"{shot['id']}.mp4"
+    still = card(shot)
+
+    big = still.resize((int(W * OVERSCAN), int(H * OVERSCAN)), Image.LANCZOS)
     bgpng = SHOTS / f".ph_{shot['id']}.png"
-    card(shot).save(bgpng)
+    big.save(bgpng)
+
+    frames = max(2, int(round(render_dur * FPS)))
+    push = (f"zoompan=z='1+{PUSH}*on/{frames - 1}'"
+            f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={frames}:s={W}x{H}:fps={FPS}")
 
     layers = SHOT_TEXT.get(shot["id"], [])
     cmd = ["ffmpeg", "-y", "-loop", "1", "-t", f"{render_dur}", "-i", str(bgpng)]
     for name, _, _ in layers:
         cmd += ["-loop", "1", "-t", f"{render_dur}", "-i", str(TEXT / f"{name}.png")]
 
-    if layers:
-        steps, prev = [], "0:v"
-        for i, (_, fin, fout) in enumerate(layers, start=1):
-            f = f"[{i}:v]format=rgba,fade=t=in:st={fin}:d=0.4:alpha=1"
-            if fout is not None:
-                f += f",fade=t=out:st={fout}:d=0.4:alpha=1"
-            steps.append(f + f"[l{i}]")
-            tag = "[vout]" if i == len(layers) else f"[v{i}]"
-            steps.append(f"[{prev}][l{i}]overlay=0:0:format=auto{tag}")
-            prev = f"v{i}"
-        cmd += ["-filter_complex", ";".join(steps), "-map", "[vout]"]
+    steps = [f"[0:v]{push},format=rgba[bg]"]
+    prev = "bg"
+    for i, (_, fin, fout) in enumerate(layers, start=1):
+        f = f"[{i}:v]format=rgba,fade=t=in:st={fin}:d=0.4:alpha=1"
+        if fout is not None:
+            f += f",fade=t=out:st={fout}:d=0.4:alpha=1"
+        steps.append(f + f"[l{i}]")
+        tag = "[vout]" if i == len(layers) else f"[v{i}]"
+        steps.append(f"[{prev}][l{i}]overlay=0:0:format=auto{tag}")
+        prev = f"v{i}"
+    if not layers:
+        steps.append("[bg]null[vout]")
 
-    cmd += [*INTERMEDIATE, "-t", f"{render_dur}", str(out)]
+    cmd += ["-filter_complex", ";".join(steps), "-map", "[vout]",
+            *INTERMEDIATE, "-t", f"{render_dur}", str(out)]
     run(cmd)
     bgpng.unlink()
     return out
