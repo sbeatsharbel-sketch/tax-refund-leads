@@ -1,0 +1,88 @@
+{
+  "_comment": "S12 team montage. Institution order is client-specified: Nahariya first, Rambam second, then the rest. Edit `montage_order` to re-sequence; edit `hero` per institution to swap the chosen image.",
+
+  "montage_order": ["galilee", "rambam", "sheba", "carmel", "bnaizion", "hadassah"],
+
+  "institutions": {
+    "galilee": {
+      "name": "Galilee Medical Center",
+      "city": "Nahariya",
+      "hero": null,
+      "status": "MISSING",
+      "note": "Host institution. Photos expected from client."
+    },
+    "rambam": {
+      "name": "Rambam Health Care Campus",
+      "city": "Haifa",
+      "hero": null,
+      "status": "MISSING",
+      "note": "Photos expected from client."
+    },
+    "sheba": {
+      "name": "Sheba Medical Center, Tel HaShomer",
+      "city": "Ramat Gan",
+      "hero": "assets/source/photos/sheba_01.jpg",
+      "status": "READY"
+    },
+    "carmel": {
+      "name": "Carmel Medical Center",
+      "city": "Haifa",
+      "hero": "assets/source/photos/carmel_03.jpg",
+      "status": "READY"
+    },
+    "bnaizion": {
+      "name": "Bnai Zion Medical Center",
+      "city": "Haifa",
+      "hero": "assets/source/photos/bnaizion_03.jpg",
+      "status": "READY"
+    },
+    "hadassah": {
+      "name": "Hadassah Medical Organization",
+      "city": "Jerusalem",
+      "hero": "assets/source/photos/hadassah_02.jpg",
+      "status": "READY"
+    }
+  },
+
+  "closing_slot": {
+    "_comment": "Final 5s of S12, under the 'One goal.' card. Prefer a wide, many-people frame.",
+    "preferred": "assets/source/photos/carmel_02.jpg",
+    "note": "Swap to a Galilee wide shot once Nahariya photos arrive - closing on the host institution is the stronger edit."
+  },
+
+  "held_back": [
+    {
+      "file": "assets/source/photos/bnaizion_01.jpg",
+      "reason": "PATIENT FACE VISIBLE at frame left during a procedure. Staff consent does not cover a patient. Do not use as-is.",
+      "remedy": "Tight crop to the right two-thirds (operators + monitors only), or obtain written patient consent, or drop.",
+      "severity": "blocker"
+    },
+    {
+      "file": "assets/source/photos/bnaizion_02.jpg",
+      "reason": "Chilli-pepper emoji sticker pasted over the patient area. Reads as an error on a lobby screen.",
+      "remedy": "Replace sticker with a clean crop or a soft blur of the same region.",
+      "severity": "blocker"
+    },
+    {
+      "file": "assets/source/photos/carmel_01.jpg",
+      "reason": "Off-site social photo (restaurant). Warm, but breaks the clinical register of the section.",
+      "remedy": "Usable if the client wants a human/social beat. Currently unused.",
+      "severity": "editorial"
+    }
+  ],
+
+  "reserve": [
+    "assets/source/photos/sheba_02.jpg",
+    "assets/source/photos/sheba_03.jpg",
+    "assets/source/photos/sheba_04.jpg",
+    "assets/source/photos/sheba_05.jpg",
+    "assets/source/photos/carmel_02.jpg",
+    "assets/source/photos/hadassah_01.jpg",
+    "assets/source/photos/hadassah_03.jpg"
+  ],
+
+  "review_notes": [
+    "Employee ID badges are legible in several frames at 1080p. scripts/montage.py applies no blurring - decide per photo whether badge detail needs softening before final delivery.",
+    "hadassah_03 carries a Hebrew unit sign in frame. Brief specifies English-only on-screen text; in-photo signage is a grey area - flagged, not blocked."
+  ]
+}
