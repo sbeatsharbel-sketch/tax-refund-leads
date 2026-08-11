@@ -8,6 +8,7 @@ than a slide deck, and the pacing can actually be judged.
 The lower third (y 780-900) is kept clear on every card, because the shot's
 real on-screen caption is composited there at its real timing.
 """
+import os
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -18,6 +19,11 @@ import shotart
 
 SHOTS = ROOT / "build" / "shots"
 TEXT = ROOT / "build" / "text"
+
+# Dev chrome (shot IDs, file paths, PLACEHOLDER banners) is production
+# scaffolding, not film. It is off unless FILM_ANNOTATE=1, so the default
+# deliverable can be shown to people.
+ANNOTATE = os.environ.get("FILM_ANNOTATE") == "1"
 
 OVERSCAN = 1.10          # still is rendered larger, then pushed into
 PUSH = 0.085             # total zoom travel across the shot
@@ -35,6 +41,19 @@ SHOT_TEXT = {
     "S13": [("S13_first", 0.6, 3.2), ("S13_sector", 4.0, 6.4)],
     "S14": [("S14_many", 1.2, None)],
 }
+
+# Layers that are not text PNGs. S13's partner wall resolves at 2:02, which is
+# 7.0s into the shot - after both caption lines have fully cleared at 6.8s.
+# Stacking logos under live text makes the frame unreadable at lobby distance.
+EXTRA_LAYERS = {
+    "S13": [(SHOTS / "logo_wall.png", 7.0, None)],
+}
+
+
+def _layers_for(shot_id):
+    out = [(TEXT / f"{n}.png", a, b) for n, a, b in SHOT_TEXT.get(shot_id, [])]
+    out += [(p, a, b) for p, a, b in EXTRA_LAYERS.get(shot_id, []) if p.exists()]
+    return out
 
 
 def _wrap(text, fnt, max_w):
@@ -64,26 +83,28 @@ def card(shot):
     if art is not None:
         im.alpha_composite(art)
 
+    if ANNOTATE:
+        _annotate(im, shot)
+    return im.convert("RGB")
+
+
+def _annotate(im, shot):
+    """Production scaffolding. Never present in the screening cut."""
     d = ImageDraw.Draw(im, "RGBA")
     d.rectangle([0, 0, W, 5], fill=MAGENTA + (190,))
-
     left_line(im, "PLACEHOLDER", font("sans_semibold", 40), 120, 96,
               MAGENTA, tracking=9)
     left_line(im, f"{shot['id']}   {shot['section'].upper()}",
               font("sans_semibold", 56), 120, 156, CYAN, tracking=4)
-
     f = font("sans", 46)
     y = 250
     for ln in _wrap(shot["content"], f, 860):
         left_line(im, ln, f, 120, y, SILVER)
         y += 60
-
-    # Metadata sits below the caption band so the two can never collide.
     meta = (f"{shot['dur']:g}s   ·   {shot['source_kind']}   ·   in @ "
             f"{int(shot['start']) // 60}:{int(shot['start']) % 60:02d}"
             f"   ·   awaiting {Path(shot.get('input') or '-').name}")
     left_line(im, meta, font("sans", 40), 120, 964, (128, 146, 168), tracking=1)
-    return im.convert("RGB")
 
 
 def build(shot, render_dur, out=None):
@@ -100,10 +121,10 @@ def build(shot, render_dur, out=None):
             f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
             f":d={frames}:s={W}x{H}:fps={FPS}")
 
-    layers = SHOT_TEXT.get(shot["id"], [])
+    layers = _layers_for(shot["id"])
     cmd = ["ffmpeg", "-y", "-loop", "1", "-t", f"{render_dur}", "-i", str(bgpng)]
-    for name, _, _ in layers:
-        cmd += ["-loop", "1", "-t", f"{render_dur}", "-i", str(TEXT / f"{name}.png")]
+    for path, _, _ in layers:
+        cmd += ["-loop", "1", "-t", f"{render_dur}", "-i", str(path)]
 
     steps = [f"[0:v]{push},format=rgba[bg]"]
     prev = "bg"

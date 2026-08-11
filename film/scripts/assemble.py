@@ -6,6 +6,7 @@ Each section carries a 0.5s tail handle so the crossfades do not eat the
 timeline - the assembled master lands on the storyboard's 150s exactly.
 """
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -16,8 +17,11 @@ from filmlib import (ROOT, W, H, FPS, load_storyboard, ffprobe_duration, run,
 
 NORM = ROOT / "build" / "norm"
 SHOTS = ROOT / "build" / "shots"
-OUT = ROOT / "out"
+# FILM_OUT stages a build elsewhere, so a running review never reads a
+# half-written master out of out/.
+OUT = Path(os.environ.get("FILM_OUT") or (ROOT / "out"))
 XFADE = 0.5
+FADE_IN, FADE_OUT = 1.0, 1.5
 MUSIC = ROOT / "assets" / "source" / "music"
 
 SPEC = dict(width=W, height=H, pix_fmt="yuv420p")
@@ -122,8 +126,16 @@ def build_video():
                      f":offset={offset:.3f}{tag}")
         prev = f"x{i}"
 
+    # Fade up from black and out to black. Starting and ending on a hard frame
+    # reads as a playback glitch on a lobby screen, and the film previously
+    # stopped dead on its last frame.
+    total = sum(durs)
+    last = "vout" if len(parts) > 1 else "0:v"
+    steps.append(f"[{last}]fade=t=in:st=0:d={FADE_IN},"
+                 f"fade=t=out:st={total - FADE_OUT:.3f}:d={FADE_OUT}[vfin]")
+
     master = ROOT / "build" / "master_silent.mp4"
-    cmd += ["-filter_complex", ";".join(steps), "-map", "[vout]",
+    cmd += ["-filter_complex", ";".join(steps), "-map", "[vfin]",
             *INTERMEDIATE, str(master)]
     run(cmd)
     print(f"  -> {master.relative_to(ROOT)}  {ffprobe_duration(master):.2f}s")

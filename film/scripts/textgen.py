@@ -17,14 +17,14 @@ OUT = ROOT / "build" / "text"
 # The two positions, fixed for the whole film.
 CENTRE_Y = int(H * 0.44)          # statement lines
 LOWER_Y = int(H * 0.755)          # lower third: support lines
-LABEL_X, LABEL_Y = 120, H - 132   # section labels, lower left
+LABEL_X, LABEL_Y = 120, H - 168   # section labels, lower left
 
 SIZES = {
     "statement": 76,
     "statement_big": 108,
     "lower": 62,
     "role": 50,
-    "label": 42,
+    "label": 54,
 }
 
 
@@ -78,11 +78,15 @@ def main():
     label("S10_embolization", "Embolization")
     statement("S11_behind", "Behind every image —")
 
-    for i, r in enumerate([
-        "Physicians", "Nurses", "Radiologic Technologists",
-        "Biomedical Engineers", "Researchers", "Industry Partners",
-    ], start=1):
-        role(f"S12_role_{i}", r)
+    # S12 captions name the institution in frame, not a profession.
+    # Binding the six role words to montage slots by index mislabelled real,
+    # identifiable staff - Hadassah's angiography team read "Industry Partners".
+    # The full role list still appears in full on the S15 title card.
+    from filmlib import load_photos
+    cfg = load_photos()
+    for key in cfg["montage_order"]:
+        rec = cfg["institutions"][key]
+        role(f"S12_inst_{key}", f"{rec['name']}  ·  {rec['city']}")
     statement("S12_onegoal", "One goal.", big=True, shadow=True)
 
     statement("S13_first", "For the first time in Israel —")

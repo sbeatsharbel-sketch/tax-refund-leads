@@ -2,6 +2,10 @@
 
 Ordered by how much they block the build.
 
+> An adversarial review of the rough cut is in `REVIEW.md`. Most of its
+> findings were code defects and have been fixed. The ones that need a human
+> decision are folded into the list below — see items 2, 7, 8 and 9.
+
 ---
 
 ## 1. Which institutions appear in the film? — blocks S13
@@ -110,6 +114,48 @@ brief's "One goal." as written.
 | Real DSA / angio footage | optional, high value — S06, S09 |
 | Angio suite B-roll | optional, high value — S04 |
 | Confirmation of the corrected title wording | see below |
+
+---
+
+## 7. Role captions were mislabelling real people — changed, needs sign-off
+
+The brief asks for the six role words (Physicians, Nurses, …) to appear across
+the team montage at roughly 3-second intervals. Implemented literally, they
+bound to montage slots by index — so the caption said nothing about who was
+actually in the frame. Hadassah's angiography team, one clinician's name badge
+legible on his lead apron, was captioned **"Industry Partners"**. Carmel's
+radiographers were captioned **"Biomedical Engineers"**.
+
+These people will be sitting in the lobby.
+
+**Changed:** each montage slot is now captioned with the **institution and
+city** shown in it, which is factually true and carries the collaboration
+message directly. The full role list still appears, in full, on the S15 title
+card. Confirm this is acceptable, or supply a per-photograph role breakdown
+and the original treatment can be restored accurately.
+
+---
+
+## 8. Photographs that need a decision
+
+| Photo | Issue | Action taken |
+|---|---|---|
+| `hadassah_02` | Selfie. The foreground man is cut through the skull by the right frame edge and shows wide-angle distortion; the push-in crops him harder every second. | Swapped out of the montage. Replace with a better Hadassah frame if one exists. |
+| `bnaizion_03` | An orange scrub label reading *"do not leave the operating theatre in this garment"* sits dead centre and is the sharpest text in the montage's warmest beat. A laundry rule, in Hebrew, in the emotional core. | Needs a client call: crop it out, or supply a different Bnai Zion photograph. |
+| Several | Employee ID badges are legible at 1080p when projected large. | Not blurred. A 6–8px blur on badge regions only is geometry-safe and does not touch faces — say the word and it goes in. |
+
+---
+
+## 9. Sponsor block
+
+Until sponsor logos arrive, the sponsor marker clears before the end of S16,
+so the film closes on the Galilee Medical Center credit fading to black rather
+than on a card reading "NOT FOR SCREENING". Supplying the logos and tier order
+removes the marker entirely.
+
+---
+
+## 10. Still outstanding from the client
 
 **Title wording:** the programme and poster both read **BEYOND THE IMAGE 2026**
 — one "THE". The film uses the client's own vector lockup, so the wording is

@@ -114,8 +114,10 @@ def build(width=W, height=H, out=None):
         centred_line(canvas, f"{len(missing)} PARTNER LOGO(S) NOT YET SOURCED",
                      font("sans_semibold", int(40 * scale)), y, (199, 79, 168),
                      tracking=3)
-        centred_line(canvas, ", ".join(n for _, n in missing),
-                     font("sans", int(40 * scale)), y + int(58 * scale), SILVER)
+        short = ", ".join(n.split(" Medical")[0].split(" Health")[0]
+                          for _, n in missing)
+        centred_line(canvas, short, font("sans", int(40 * scale)),
+                     y + int(58 * scale), SILVER)
 
     canvas.save(out)
     print(f"  -> {out.relative_to(ROOT)}  ({width}x{height})")

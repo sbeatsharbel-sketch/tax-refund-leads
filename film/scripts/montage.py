@@ -18,13 +18,16 @@ from filmlib import (ROOT, W, H, FPS, BG, CYAN, SILVER, font, load_photos,
 
 SHOT_DUR = 25.0
 CLOSING_DUR = 5.0
-DISSOLVE = 0.4          # set to 0.0 for hard cuts throughout
+# Hard cuts. A dissolve between two group photographs superimposes faces
+# on faces - four translucent heads floated over the group at 1:49.9 -
+# and the brief calls for hard cuts inside a section anyway.
+DISSOLVE = 0.0
 ZOOM_START, ZOOM_END = 1.02, 1.095
 DRIFT_PX = 26           # horizontal drift across a slot
 DEFAULT_ANCHOR = 0.38   # vertical crop anchor; 0 = top, 1 = bottom
 
 # Closing beat: dim the last photograph under "One goal."
-DIM_START, DIM_RAMP, DIM_MAX = 19.8, 1.4, 0.58
+DIM_START, DIM_RAMP, DIM_MAX = 19.8, 1.4, 0.36
 
 # LANCZOS for delivery, BICUBIC while iterating (visually identical at these
 # scale factors, roughly 3x faster). Set FILM_QUALITY=final for the master.
@@ -48,14 +51,21 @@ class Slot:
     """One photograph (or a pending-photo placeholder) with its Ken Burns move."""
 
     def __init__(self, dur, path=None, anchor=DEFAULT_ANCHOR, pending_label=None,
-                 drift_sign=1):
+                 drift_sign=1, crop=None):
         self.dur = dur
         self.anchor = anchor
         self.pending_label = pending_label
         self.drift_sign = drift_sign
         self.base = None
         if path:
-            self.base = self._prescale(Image.open(path).convert("RGB"))
+            im = Image.open(path).convert("RGB")
+            if crop:
+                # Fractional [left, top, right, bottom]. Used to exclude
+                # something from frame - never to alter what stays in it.
+                l, t, r, b = crop
+                im = im.crop((int(l * im.width), int(t * im.height),
+                              int(r * im.width), int(b * im.height)))
+            self.base = self._prescale(im)
 
     @staticmethod
     def _prescale(im):
@@ -108,9 +118,9 @@ def bottom_scrim():
     """
     scrim = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(scrim)
-    top, bot = int(H * 0.52), H
+    top, bot = int(H * 0.68), H
     for y in range(top, bot):
-        a = int(225 * ((y - top) / (bot - top)) ** 0.85)
+        a = int(190 * ((y - top) / (bot - top)) ** 0.8)
         d.line([(0, y), (W, y)], fill=BG + (a,))
     return scrim
 
@@ -124,33 +134,44 @@ def build_slots():
     cfg = load_photos()
     insts = cfg["institutions"]
     order = cfg["montage_order"]
-    per = (SHOT_DUR - CLOSING_DUR) / len(order)
 
-    slots, pending = [], []
-    for i, key in enumerate(order):
+    cast = [k for k in order
+            if insts[k].get("hero") and (ROOT / insts[k]["hero"]).exists()]
+    pending = [insts[k]["name"] for k in order if k not in cast]
+
+    # An empty "slot reserved" card is dead screen time in the film's emotional
+    # core. Institutions without photographs are simply not cast, and the time
+    # is shared between the ones that are - the montage re-expands by itself
+    # the moment a photograph lands in photos.json.
+    if not cast:
+        cast, pending = order, []
+    per = (SHOT_DUR - CLOSING_DUR) / len(cast)
+
+    slots = []
+    for i, key in enumerate(cast):
         rec = insts[key]
         hero = rec.get("hero")
         path = ROOT / hero if hero else None
         if path and path.exists():
             slots.append(Slot(per, path, ANCHORS.get(key, DEFAULT_ANCHOR),
-                              drift_sign=1 if i % 2 == 0 else -1))
+                              drift_sign=1 if i % 2 == 0 else -1,
+                              crop=rec.get("crop")))
         else:
             label = f"{rec['name'].upper()} — {rec['city'].upper()}"
             slots.append(Slot(per, None, pending_label=label))
-            pending.append(rec["name"])
 
     closing = cfg["closing_slot"]["preferred"]
     cpath = ROOT / closing
     slots.append(Slot(CLOSING_DUR, cpath if cpath.exists() else None,
                       0.36, pending_label="CLOSING FRAME PENDING"))
-    return slots, pending
+    return slots, pending, cast
 
 
-def caption_schedule(slots):
-    """(png, fade_in, fade_out) for the six role lines and the One goal. card."""
+def caption_schedule(slots, cast):
+    """(png, fade_in, fade_out) per slot, keyed to the institution in frame."""
     sched, t = [], 0.0
-    for i, s in enumerate(slots[:-1], start=1):
-        p = TEXT / f"S12_role_{i}.png"
+    for key, s in zip(cast, slots[:-1]):
+        p = TEXT / f"S12_inst_{key}.png"
         if p.exists():
             sched.append((p, t + 0.6, t + s.dur - 0.5))
         t += s.dur
@@ -165,7 +186,7 @@ def render():
     for f in FRAMES.glob("*.png"):
         f.unlink()
 
-    slots, pending = build_slots()
+    slots, pending, cast = build_slots()
     scrim = bottom_scrim()
     starts, acc = [], 0.0
     for s in slots:
@@ -173,7 +194,7 @@ def render():
         acc += s.dur
 
     captions = [(Image.open(p).convert("RGBA"), a, b) for p, a, b in
-                caption_schedule(slots)]
+                caption_schedule(slots, cast)]
 
     total = int(round(SHOT_DUR * FPS))
     for n in range(total):

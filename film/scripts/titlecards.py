@@ -24,7 +24,7 @@ S15_SUPPORT = ("Bringing Together Physicians, Nurses, Radiologic Technologists, 
 
 S16_LINES = [
     "Founded and hosted by Galilee Medical Center, Nahariya",
-    "Israel's first conference of its kind",
+    "Israel’s first conference of its kind",
 ]
 S16_SPONSOR_HEADING = "Special Thanks to Our Sponsors"
 
@@ -127,18 +127,18 @@ def s15_sub_png():
     art = brand_png("bti_subtitle_dark")
     if art is not None:
         place(img, art, 1180, 524)
-    f, _ = fit(S15_SUB, "sans_medium", 50, 1440, tracking=1)
+    f, _ = fit(S15_SUB, "sans_medium", 58, 1500, tracking=1)
     centred_line(img, S15_SUB, f, 620, SILVER, tracking=1)
     return _save(img, "S15_sub")
 
 
 def s15_support_png():
     img = new_layer()
-    lines, f = wrap(S15_SUPPORT, "sans", 42, 1380)
+    lines, f = wrap(S15_SUPPORT, "sans", 46, 1440)
     y = 742
     for ln in lines:
         centred_line(img, ln, f, y, (170, 186, 205))
-        y += 56
+        y += 62
     return _save(img, "S15_support")
 
 
@@ -151,10 +151,11 @@ def s16_credit_png():
     logo = ROOT / "assets" / "source" / "logos" / "01_galilee.png"
     if logo.exists():
         y += place(img, Image.open(logo).convert("RGBA"), 390, y) + 78
-    f, _ = fit(S16_LINES[0], "sans_medium", 50, 1500)
+    f, _ = fit(S16_LINES[0], "sans_medium", 58, 1560)
     centred_line(img, S16_LINES[0], f, y, SILVER)
-    f2, _ = fit(S16_LINES[1], "sans", 44, 1400)
-    centred_line(img, S16_LINES[1], f2, y + 74, CYAN)
+    f2, _ = fit(S16_LINES[1], "sans", 50, 1440)
+    # Cyan on navy was the lowest-contrast pairing on the card.
+    centred_line(img, S16_LINES[1], f2, y + 74, SILVER)
     return _save(img, "S16_credit")
 
 
@@ -166,7 +167,7 @@ def s16_sponsors_png():
     instead. It cannot be mistaken for a finished frame in a screening.
     """
     img = new_layer()
-    f, _ = fit(S16_SPONSOR_HEADING, "sans_medium", 46, 1200, tracking=2)
+    f, _ = fit(S16_SPONSOR_HEADING, "sans_medium", 52, 1300, tracking=2)
     centred_line(img, S16_SPONSOR_HEADING, f, 604, SILVER, tracking=2)
 
     wall = ROOT / "build" / "shots" / "sponsor_wall.png"
@@ -252,8 +253,11 @@ def main():
     t, s, sup = s15_title_png(), s15_sub_png(), s15_support_png()
     cred, spon = s16_credit_png(), s16_sponsors_png()
 
-    build_card("S15", 10, [(t, 0.5, 9.4), (s, 1.5, 9.4), (sup, 2.4, 9.4)], seed=15)
-    build_card("S16", 5, [(cred, 0.3, None), (spon, 1.2, None)], seed=23)
+    build_card("S15", 10, [(t, 0.5, None), (s, 1.5, None),
+                           (sup, 2.4, None)], seed=15)
+    # The sponsor marker clears at 3.2s so the film closes on the host
+    # institution's credit, not on a card reading NOT FOR SCREENING.
+    build_card("S16", 5, [(cred, 0.3, None), (spon, 1.2, 3.2)], seed=23)
     final_frame()
 
 

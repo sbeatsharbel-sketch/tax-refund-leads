@@ -1,8 +1,13 @@
 {
   "_comment": "S12 team montage. Institution order is client-specified: Nahariya first, Rambam second, then the rest. Edit `montage_order` to re-sequence; edit `hero` per institution to swap the chosen image.",
-
-  "montage_order": ["galilee", "rambam", "sheba", "carmel", "bnaizion", "hadassah"],
-
+  "montage_order": [
+    "galilee",
+    "rambam",
+    "sheba",
+    "carmel",
+    "bnaizion",
+    "hadassah"
+  ],
   "institutions": {
     "galilee": {
       "name": "Galilee Medical Center",
@@ -33,23 +38,29 @@
     "bnaizion": {
       "name": "Bnai Zion Medical Center",
       "city": "Haifa",
-      "hero": "assets/source/photos/bnaizion_03.jpg",
-      "status": "READY"
+      "hero": "assets/source/photos/bnaizion_02.jpg",
+      "status": "READY",
+      "crop": [
+        0.0,
+        0.28,
+        0.66,
+        1.0
+      ],
+      "note": "Cropped to the left two-thirds. That removes the emoji sticker and the patient entirely, leaving three gowned staff at the monitors with their backs to camera - clinically strong and fully anonymous. Replaces bnaizion_03, whose centre-frame Hebrew scrub label ('do not leave the operating theatre in this garment') was the sharpest text in the montage's warmest beat."
     },
     "hadassah": {
       "name": "Hadassah Medical Organization",
       "city": "Jerusalem",
-      "hero": "assets/source/photos/hadassah_02.jpg",
-      "status": "READY"
+      "hero": "assets/source/photos/hadassah_01.jpg",
+      "status": "READY",
+      "note": "Replaces hadassah_02, a selfie in which the foreground man is cut through the skull by the right frame edge and shows wide-angle distortion that the push-in makes worse every second."
     }
   },
-
   "closing_slot": {
     "_comment": "Final 5s of S12, under the 'One goal.' card. Prefer a wide, many-people frame.",
     "preferred": "assets/source/photos/carmel_02.jpg",
     "note": "Swap to a Galilee wide shot once Nahariya photos arrive - closing on the host institution is the stronger edit."
   },
-
   "held_back": [
     {
       "file": "assets/source/photos/bnaizion_01.jpg",
@@ -60,29 +71,41 @@
     {
       "file": "assets/source/photos/bnaizion_02.jpg",
       "reason": "Chilli-pepper emoji sticker pasted over the patient area. Reads as an error on a lobby screen.",
-      "remedy": "Replace sticker with a clean crop or a soft blur of the same region.",
-      "severity": "blocker"
+      "remedy": "Resolved: now used with crop [0.0, 0.28, 0.66, 1.0], which excludes the sticker and the patient.",
+      "severity": "resolved"
     },
     {
       "file": "assets/source/photos/carmel_01.jpg",
       "reason": "Off-site social photo (restaurant). Warm, but breaks the clinical register of the section.",
       "remedy": "Usable if the client wants a human/social beat. Currently unused.",
       "severity": "editorial"
+    },
+    {
+      "file": "assets/source/photos/bnaizion_03.jpg",
+      "reason": "Orange scrub label, Hebrew, dead centre and fully legible: 'do not leave the operating theatre in this garment'. A laundry rule as the sharpest text in the film's warmest beat.",
+      "remedy": "Crop it out, or supply a different Bnai Zion photograph.",
+      "severity": "editorial"
+    },
+    {
+      "file": "assets/source/photos/hadassah_02.jpg",
+      "reason": "Foreground subject cut through the skull by the right frame edge; wide-angle facial distortion.",
+      "remedy": "Usable if re-anchored and held at lower zoom. Currently unused.",
+      "severity": "editorial"
     }
   ],
-
   "reserve": [
     "assets/source/photos/sheba_02.jpg",
     "assets/source/photos/sheba_03.jpg",
     "assets/source/photos/sheba_04.jpg",
     "assets/source/photos/sheba_05.jpg",
     "assets/source/photos/carmel_02.jpg",
-    "assets/source/photos/hadassah_01.jpg",
-    "assets/source/photos/hadassah_03.jpg"
+    "assets/source/photos/hadassah_03.jpg",
+    "assets/source/photos/bnaizion_03.jpg",
+    "assets/source/photos/hadassah_02.jpg"
   ],
-
   "review_notes": [
     "Employee ID badges are legible in several frames at 1080p. scripts/montage.py applies no blurring - decide per photo whether badge detail needs softening before final delivery.",
     "hadassah_03 carries a Hebrew unit sign in frame. Brief specifies English-only on-screen text; in-photo signage is a grey area - flagged, not blocked."
-  ]
+  ],
+  "_montage_casting": "Only institutions with an existing `hero` are cast; the 20s before the closing slot is shared between them. Institutions awaiting photographs are skipped rather than filling screen time with an empty reserved card, and the montage re-expands automatically once a hero is set."
 }
