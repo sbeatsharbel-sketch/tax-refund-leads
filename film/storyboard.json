@@ -3,7 +3,7 @@
   "venue": "Galilee Medical Center, Nahariya",
   "screening_date": "2026-09-09",
   "fps": 24,
-  "target_duration": 114,
+  "target_duration": 142,
   "hard_ceiling": 155,
   "master": {
     "w": 1920,
@@ -178,7 +178,7 @@
       "id": "S12",
       "section": "The team",
       "start": 61,
-      "dur": 24,
+      "dur": 52,
       "source_kind": "built",
       "input": "build/shots/S12.mp4",
       "content": "Team montage. Emotional core.",
@@ -187,7 +187,7 @@
     {
       "id": "S13",
       "section": "Collaboration",
-      "start": 85,
+      "start": 113,
       "dur": 10,
       "source_kind": "ai",
       "input": "assets/generated/S13.mp4",
@@ -209,7 +209,7 @@
     {
       "id": "S14",
       "section": "Legacy",
-      "start": 95,
+      "start": 123,
       "dur": 5,
       "source_kind": "ai",
       "input": "assets/generated/S14.mp4",
@@ -224,7 +224,7 @@
     {
       "id": "S15",
       "section": "Title card",
-      "start": 100,
+      "start": 128,
       "dur": 9,
       "source_kind": "built",
       "input": "build/shots/S15.mp4",
@@ -235,7 +235,7 @@
     {
       "id": "S16",
       "section": "Credit",
-      "start": 109,
+      "start": 137,
       "dur": 5,
       "source_kind": "built",
       "input": "build/shots/S16.mp4",

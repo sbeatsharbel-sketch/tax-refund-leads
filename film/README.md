@@ -28,7 +28,7 @@ Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 
 | | |
 |---|---|
-| Runtime | **114.00s** — 1:54. Shortened from the brief's 150s at the client's request |
+| Runtime | **142.00s** — 2:22 (ceiling 155s) |
 | Shots from real sources | 3 / 16 — S12, S15, S16 |
 | Placeholders | 13 — brand particle field, real caption at real timing |
 | Audio | **silent** — awaiting a licensed track in `assets/source/music/` |
@@ -44,8 +44,10 @@ generated or filmed material exists.
   "BEYOND THE THE IMAGE 2026"; this uses the client's own vector lockup lifted
   from the conference programme PDF, so the wording is correct by construction.
 - **S16 credit** — under the genuine Galilee Medical Center mark, same source.
-- **S12 team montage** — 14 supplied photographs, four institutions, one slot
-  each in client-specified order, with slots reserved for Nahariya and Rambam.
+- **S12 team montage** — 52s. **All 23 supplied photographs**, grouped by
+  institution in the client-specified order, 2.14s each, one caption held
+  across each institution's group. Nahariya and Rambam are skipped until their
+  photographs arrive, at which point the montage re-times itself.
 
 ## Layout
 

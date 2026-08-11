@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""S12 - the team montage (25s, 1:30-1:55). The emotional core.
+"""S12 - the team montage. The emotional core.
+
+Every photograph the client supplied is in here, grouped by institution in the
+client-specified order, one caption held across each group.
 
 Hard rules honoured here:
   - photographs are never regenerated, restyled, filtered or face-altered
   - motion is limited to a slow push-in and a few px of drift
-  - each institution gets one slot, in the client-specified order
+  - a fractional crop may exclude something from frame (a patient, a sticker)
+    but never alters what stays in it
 Only geometry (cover-crop, scale) and a bottom scrim for caption legibility
 are applied. Pixels inside the frame are the client's own.
 """
@@ -15,6 +19,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from filmlib import (ROOT, W, H, FPS, BG, CYAN, SILVER, font, load_photos,
                      centred_line, run, INTERMEDIATE)
+
 
 def _shot_dur(shot_id, default):
     from filmlib import load_storyboard
@@ -139,53 +144,72 @@ def dim_layer(opacity):
 
 
 def build_slots():
+    """Every supplied photograph gets a slot, grouped by institution.
+
+    Institutions with no photographs are skipped rather than filling the film's
+    emotional core with an empty reserved card; the montage re-expands by
+    itself the moment photographs land in photos.json.
+    """
     cfg = load_photos()
     insts = cfg["institutions"]
     order = cfg["montage_order"]
 
-    cast = [k for k in order
-            if insts[k].get("hero") and (ROOT / insts[k]["hero"]).exists()]
-    pending = [insts[k]["name"] for k in order if k not in cast]
+    groups = [(k, insts[k]["photos"]) for k in order
+              if [p for p in insts[k].get("photos", [])
+                  if (ROOT / p["file"]).exists()]]
+    pending = [insts[k]["name"] for k in order
+               if not insts[k].get("photos")]
 
-    # An empty "slot reserved" card is dead screen time in the film's emotional
-    # core. Institutions without photographs are simply not cast, and the time
-    # is shared between the ones that are - the montage re-expands by itself
-    # the moment a photograph lands in photos.json.
-    if not cast:
-        cast, pending = order, []
-    per = (SHOT_DUR - CLOSING_DUR) / len(cast)
+    total = sum(len(ps) for _, ps in groups)
+    if total == 0:
+        return [Slot(SHOT_DUR, None, pending_label="PHOTOGRAPHS PENDING")], \
+            pending, []
+    per = (SHOT_DUR - CLOSING_DUR) / total
 
-    slots = []
-    for i, key in enumerate(cast):
-        rec = insts[key]
-        hero = rec.get("hero")
-        path = ROOT / hero if hero else None
-        if path and path.exists():
-            slots.append(Slot(per, path, ANCHORS.get(key, DEFAULT_ANCHOR),
+    slots, layout, i = [], [], 0
+    for key, photos in groups:
+        start = len(slots)
+        for rec in photos:
+            path = ROOT / rec["file"]
+            if not path.exists():
+                continue
+            slots.append(Slot(per, path,
+                              rec.get("anchor", ANCHORS.get(key, DEFAULT_ANCHOR)),
                               drift_sign=1 if i % 2 == 0 else -1,
                               crop=rec.get("crop")))
-        else:
-            label = f"{rec['name'].upper()} — {rec['city'].upper()}"
-            slots.append(Slot(per, None, pending_label=label))
+            i += 1
+        if len(slots) > start:
+            layout.append((key, start, len(slots) - start))
 
-    closing = cfg["closing_slot"]["preferred"]
-    cpath = ROOT / closing
-    slots.append(Slot(CLOSING_DUR, cpath if cpath.exists() else None,
+    closing = ROOT / cfg["closing_slot"]["preferred"]
+    slots.append(Slot(CLOSING_DUR, closing if closing.exists() else None,
                       0.36, pending_label="CLOSING FRAME PENDING"))
-    return slots, pending, cast
+    return slots, pending, layout
 
 
-def caption_schedule(slots, cast):
-    """(png, fade_in, fade_out) per slot, keyed to the institution in frame."""
-    sched, t = [], 0.0
-    for key, s in zip(cast, slots[:-1]):
+def caption_schedule(slots, layout):
+    """One caption per institution, held across that institution's whole group.
+
+    A caption per photograph would flash six times in twelve seconds; a caption
+    per group reads as a chapter heading, which is what it is.
+    """
+    starts, acc = [], 0.0
+    for s in slots:
+        starts.append(acc)
+        acc += s.dur
+
+    sched = []
+    for key, first, count in layout:
         p = TEXT / f"S12_inst_{key}.png"
-        if p.exists():
-            sched.append((p, t + 0.6, t + s.dur - 0.5))
-        t += s.dur
+        if not p.exists():
+            continue
+        a = starts[first]
+        b = starts[first + count - 1] + slots[first + count - 1].dur
+        sched.append((p, a + 0.4, b - 0.45))
+
     og = TEXT / "S12_onegoal.png"
     if og.exists():
-        sched.append((og, t + 0.2, None))
+        sched.append((og, starts[-1] + 0.2, None))
     return sched
 
 
@@ -194,7 +218,7 @@ def render():
     for f in FRAMES.glob("*.png"):
         f.unlink()
 
-    slots, pending, cast = build_slots()
+    slots, pending, layout = build_slots()
     scrim = bottom_scrim()
     starts, acc = [], 0.0
     for s in slots:
@@ -202,7 +226,7 @@ def render():
         acc += s.dur
 
     captions = [(Image.open(p).convert("RGBA"), a, b) for p, a, b in
-                caption_schedule(slots, cast)]
+                caption_schedule(slots, layout)]
 
     total = int(round(SHOT_DUR * FPS))
     for n in range(total):
@@ -240,7 +264,7 @@ def render():
          *INTERMEDIATE, str(out)])
     for f in FRAMES.glob("*.png"):
         f.unlink()
-    print(f"  -> {out.relative_to(ROOT)}  ({SHOT_DUR}s, {len(slots)} slots)")
+    print(f"  -> {out.relative_to(ROOT)}  ({SHOT_DUR:g}s, {len(slots)} photographs, {slots[0].dur:.2f}s each)")
     if pending:
         print("  PENDING photographs: " + ", ".join(pending))
     return out
