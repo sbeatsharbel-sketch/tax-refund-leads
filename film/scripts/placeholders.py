@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Placeholder clips for shots whose source has not arrived.
 
-Each card carries the brand's particle background, an abstract line-art motif
-for that shot, and a slow push-in - so the rough cut reads as a film rather
-than a slide deck, and the pacing can actually be judged.
+Each card is a quiet lit field with a slow push-in - no diagrams, no mesh -
+so the rough cut reads as a film rather than a slide deck and the pacing can
+be judged. See fields.py for how the light travels across the running order.
 
 The lower third (y 780-900) is kept clear on every card, because the shot's
 real on-screen caption is composited there at its real timing.
@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw
 
 from filmlib import (ROOT, W, H, FPS, BG, CYAN, MAGENTA, SILVER, font,
                      left_line, run, INTERMEDIATE)
-import shotart
+import fields
 
 SHOTS = ROOT / "build" / "shots"
 TEXT = ROOT / "build" / "text"
@@ -71,17 +71,16 @@ def _wrap(text, fnt, max_w):
 
 
 def card(shot):
-    """Full-frame placeholder still: particle field + motif + shot identity."""
-    from particles import Field
-    seed = 40 + int(shot["id"][1:])
-    fld = Field(n=88, seed=seed, speed=0.6)
-    for _ in range(seed * 3):
-        fld.step()
-    im = fld.render(seed * 0.7).convert("RGBA")
+    """Full-frame placeholder still: a quiet lit field, nothing else.
 
-    art = shotart.for_shot(shot["id"])
-    if art is not None:
-        im.alpha_composite(art)
+    The particle mesh is deliberately not used here - it belongs to the title
+    card and the credit, so the opening and the ending read as different
+    places. The light position and warmth come from the shot's section, so the
+    film travels somewhere across its 150 seconds.
+    """
+    n = int(shot["id"][1:])
+    im = fields.field(shot["section"], phase=(n % 3) / 3.0,
+                      seed=n).convert("RGBA")
 
     if ANNOTATE:
         _annotate(im, shot)

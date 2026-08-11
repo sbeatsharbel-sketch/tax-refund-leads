@@ -6,7 +6,8 @@
     "sheba",
     "carmel",
     "bnaizion",
-    "hadassah"
+    "hadassah",
+    "poriya"
   ],
   "institutions": {
     "galilee": {
@@ -54,6 +55,13 @@
       "hero": "assets/source/photos/hadassah_01.jpg",
       "status": "READY",
       "note": "Replaces hadassah_02, a selfie in which the foreground man is cut through the skull by the right frame edge and shows wide-angle distortion that the push-in makes worse every second."
+    },
+    "poriya": {
+      "name": "Baruch Padeh Medical Center",
+      "city": "Poriya",
+      "hero": "assets/source/photos/poriya_578163.jpg",
+      "status": "READY",
+      "note": "Listed in the conference programme as Tzafon Medical Center, Baruch Padeh. Hero is two clinicians working under the C-arm with a colleague visible through the control-room glass - warm, clean, and no blood in frame. poriya_578156 (a physician in profile reading DSA of spine and skull) is the strongest single image of the whole set and is a candidate for S04."
     }
   },
   "closing_slot": {
@@ -91,6 +99,24 @@
       "reason": "Foreground subject cut through the skull by the right frame edge; wide-angle facial distortion.",
       "remedy": "Usable if re-anchored and held at lower zoom. Currently unused.",
       "severity": "editorial"
+    },
+    {
+      "file": "assets/source/photos/poriya_578147.jpg",
+      "reason": "Visible blood on drapes, gloves or the surgical field.",
+      "remedy": "Fine for a clinical audience, but this film also plays to hospital management and non-medical guests in an open lobby. Client call.",
+      "severity": "editorial"
+    },
+    {
+      "file": "assets/source/photos/poriya_578153.jpg",
+      "reason": "Visible blood on drapes, gloves or the surgical field.",
+      "remedy": "Fine for a clinical audience, but this film also plays to hospital management and non-medical guests in an open lobby. Client call.",
+      "severity": "editorial"
+    },
+    {
+      "file": "assets/source/photos/poriya_578165.jpg",
+      "reason": "Visible blood on drapes, gloves or the surgical field.",
+      "remedy": "Fine for a clinical audience, but this film also plays to hospital management and non-medical guests in an open lobby. Client call.",
+      "severity": "editorial"
     }
   ],
   "reserve": [
@@ -101,7 +127,12 @@
     "assets/source/photos/carmel_02.jpg",
     "assets/source/photos/hadassah_03.jpg",
     "assets/source/photos/bnaizion_03.jpg",
-    "assets/source/photos/hadassah_02.jpg"
+    "assets/source/photos/hadassah_02.jpg",
+    "assets/source/photos/poriya_578141.jpg",
+    "assets/source/photos/poriya_578144.jpg",
+    "assets/source/photos/poriya_578150.jpg",
+    "assets/source/photos/poriya_578156.jpg",
+    "assets/source/photos/poriya_578167.jpg"
   ],
   "review_notes": [
     "Employee ID badges are legible in several frames at 1080p. scripts/montage.py applies no blurring - decide per photo whether badge detail needs softening before final delivery.",

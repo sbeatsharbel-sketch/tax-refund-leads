@@ -17,10 +17,15 @@ step "brand assets"
 python3 scripts/extract_brand.py
 
 step "score"
+# The synthesised score is opt-in: FILM_SCORE=1 ./build.sh. It is a scratch
+# track for timing, not a deliverable. Drop a licensed WAV into
+# assets/source/music/ and assemble.py picks it up automatically.
 if ls assets/source/music/*.wav >/dev/null 2>&1; then
-  echo "  music already present, skipping composition"
-else
+  echo "  music present in assets/source/music - using it"
+elif [ "${FILM_SCORE:-0}" = "1" ]; then
   python3 scripts/score.py
+else
+  echo "  no track supplied; encoding silent (FILM_SCORE=1 for the scratch score)"
 fi
 
 step "text layer"
