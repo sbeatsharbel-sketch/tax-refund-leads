@@ -16,8 +16,16 @@ from PIL import Image, ImageDraw, ImageFilter
 from filmlib import (ROOT, W, H, FPS, BG, CYAN, SILVER, font, load_photos,
                      centred_line, run, INTERMEDIATE)
 
-SHOT_DUR = 25.0
-CLOSING_DUR = 5.0
+def _shot_dur(shot_id, default):
+    from filmlib import load_storyboard
+    for sh in load_storyboard()["shots"]:
+        if sh["id"] == shot_id:
+            return float(sh["dur"])
+    return default
+
+
+SHOT_DUR = _shot_dur("S12", 25.0)
+CLOSING_DUR = min(5.0, SHOT_DUR * 0.21)
 # Hard cuts. A dissolve between two group photographs superimposes faces
 # on faces - four translucent heads floated over the group at 1:49.9 -
 # and the brief calls for hard cuts inside a section anyway.
@@ -27,7 +35,7 @@ DRIFT_PX = 26           # horizontal drift across a slot
 DEFAULT_ANCHOR = 0.38   # vertical crop anchor; 0 = top, 1 = bottom
 
 # Closing beat: dim the last photograph under "One goal."
-DIM_START, DIM_RAMP, DIM_MAX = 19.8, 1.4, 0.36
+DIM_START, DIM_RAMP, DIM_MAX = SHOT_DUR - CLOSING_DUR - 0.2, 1.4, 0.36
 
 # LANCZOS for delivery, BICUBIC while iterating (visually identical at these
 # scale factors, roughly 3x faster). Set FILM_QUALITY=final for the master.

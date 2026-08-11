@@ -248,16 +248,26 @@ def final_frame():
     return out
 
 
+def _dur(shot_id, default):
+    from filmlib import load_storyboard
+    for sh in load_storyboard()["shots"]:
+        if sh["id"] == shot_id:
+            return float(sh["dur"])
+    return default
+
+
 def main():
     print("title cards ->")
+    d15, d16 = _dur("S15", 10.0), _dur("S16", 5.0)
     t, s, sup = s15_title_png(), s15_sub_png(), s15_support_png()
     cred, spon = s16_credit_png(), s16_sponsors_png()
 
-    build_card("S15", 10, [(t, 0.5, None), (s, 1.5, None),
-                           (sup, 2.4, None)], seed=15)
+    build_card("S15", d15, [(t, 0.4, None), (s, 1.2, None),
+                            (sup, 2.0, None)], seed=15)
     # The sponsor marker clears at 3.2s so the film closes on the host
     # institution's credit, not on a card reading NOT FOR SCREENING.
-    build_card("S16", 5, [(cred, 0.3, None), (spon, 1.2, 3.2)], seed=23)
+    build_card("S16", d16, [(cred, 0.3, None),
+                            (spon, 1.2, max(2.0, d16 - 1.8))], seed=23)
     final_frame()
 
 

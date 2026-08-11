@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Placeholder clips for shots whose source has not arrived.
 
-Each card is a quiet lit field with a slow push-in - no diagrams, no mesh -
-so the rough cut reads as a film rather than a slide deck and the pacing can
-be judged. See fields.py for how the light travels across the running order.
+Every card sits on the brand's particle-network field, the same background the
+title card uses, with the node density rising as the film builds. Text is
+composited straight over the moving field.
 
 The lower third (y 780-900) is kept clear on every card, because the shot's
 real on-screen caption is composited there at its real timing.
@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw
 
 from filmlib import (ROOT, W, H, FPS, BG, CYAN, MAGENTA, SILVER, font,
                      left_line, run, INTERMEDIATE)
-import fields
+from particles import background_clip
 
 SHOTS = ROOT / "build" / "shots"
 TEXT = ROOT / "build" / "text"
@@ -25,28 +25,25 @@ TEXT = ROOT / "build" / "text"
 # deliverable can be shown to people.
 ANNOTATE = os.environ.get("FILM_ANNOTATE") == "1"
 
-OVERSCAN = 1.10          # still is rendered larger, then pushed into
-PUSH = 0.085             # total zoom travel across the shot
-
 # Which text PNG belongs to which shot, and when it appears inside the shot.
 SHOT_TEXT = {
-    "S02": [("S02_story", 0.8, None)],
-    "S03": [("S03_time", 0.8, None)],
-    "S05": [("S05_thrombectomy", 0.5, None)],
-    "S07": [("S07_minutes", 1.0, None)],
-    "S08": [("S08_coiling", 0.5, None)],
-    "S10": [("S10_embolization", 0.5, None)],
-    "S11": [("S11_behind", 1.4, None)],
-    # S13: both lines must fully clear before the logo wall resolves at 2:02.
-    "S13": [("S13_first", 0.6, 3.2), ("S13_sector", 4.0, 6.4)],
-    "S14": [("S14_many", 1.2, None)],
+    "S02": [("S02_story", 0.5, None)],
+    "S03": [("S03_time", 0.5, None)],
+    "S05": [("S05_thrombectomy", 0.3, None)],
+    "S07": [("S07_minutes", 0.6, None)],
+    "S08": [("S08_coiling", 0.3, None)],
+    "S10": [("S10_embolization", 0.3, None)],
+    "S11": [("S11_behind", 0.8, None)],
+    # S13: both lines must fully clear before the logo wall resolves.
+    "S13": [("S13_first", 0.4, 2.8), ("S13_sector", 3.4, 5.8)],
+    "S14": [("S14_many", 0.7, None)],
 }
 
 # Layers that are not text PNGs. S13's partner wall resolves at 2:02, which is
-# 7.0s into the shot - after both caption lines have fully cleared at 6.8s.
+# after both caption lines have fully cleared at 6.2s.
 # Stacking logos under live text makes the frame unreadable at lobby distance.
 EXTRA_LAYERS = {
-    "S13": [(SHOTS / "logo_wall.png", 7.0, None)],
+    "S13": [(SHOTS / "logo_wall.png", 6.4, None)],
 }
 
 
@@ -73,18 +70,30 @@ def _wrap(text, fnt, max_w):
 def card(shot):
     """Full-frame placeholder still: a quiet lit field, nothing else.
 
-    The particle mesh is deliberately not used here - it belongs to the title
-    card and the credit, so the opening and the ending read as different
-    places. The light position and warmth come from the shot's section, so the
-    film travels somewhere across its 150 seconds.
+    Only used for the annotated production cut; the screening cut composites
+    text straight over the moving particle field.
     """
+    from particles import Field
     n = int(shot["id"][1:])
-    im = fields.field(shot["section"], phase=(n % 3) / 3.0,
-                      seed=n).convert("RGBA")
-
+    fld = Field(n=_density(shot["section"]), seed=40 + n, speed=0.65)
+    for _ in range(n * 7):
+        fld.step()
+    im = fld.render(n * 0.7).convert("RGBA")
     if ANNOTATE:
         _annotate(im, shot)
     return im.convert("RGB")
+
+
+# One visual register across the whole film - the brand particle field - with
+# density rising as the film builds, so it still travels somewhere.
+DENSITY = {
+    "Cold open": 72, "The image": 84, "Thrombectomy": 96, "Coiling": 96,
+    "Embolization": 92, "Bridge": 78, "Collaboration": 118, "Legacy": 130,
+}
+
+
+def _density(section):
+    return DENSITY.get(section, 95)
 
 
 def _annotate(im, shot):
@@ -109,23 +118,17 @@ def _annotate(im, shot):
 def build(shot, render_dur, out=None):
     SHOTS.mkdir(parents=True, exist_ok=True)
     out = Path(out) if out else SHOTS / f"{shot['id']}.mp4"
-    still = card(shot)
-
-    big = still.resize((int(W * OVERSCAN), int(H * OVERSCAN)), Image.LANCZOS)
-    bgpng = SHOTS / f".ph_{shot['id']}.png"
-    big.save(bgpng)
-
-    frames = max(2, int(round(render_dur * FPS)))
-    push = (f"zoompan=z='1+{PUSH}*on/{frames - 1}'"
-            f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-            f":d={frames}:s={W}x{H}:fps={FPS}")
+    bg = background_clip(render_dur,
+                         ROOT / "build" / f".bg_{shot['id']}.mp4",
+                         seed=40 + int(shot["id"][1:]),
+                         n=_density(shot["section"]), speed=0.65)
 
     layers = _layers_for(shot["id"])
-    cmd = ["ffmpeg", "-y", "-loop", "1", "-t", f"{render_dur}", "-i", str(bgpng)]
+    cmd = ["ffmpeg", "-y", "-i", str(bg)]
     for path, _, _ in layers:
         cmd += ["-loop", "1", "-t", f"{render_dur}", "-i", str(path)]
 
-    steps = [f"[0:v]{push},format=rgba[bg]"]
+    steps = ["[0:v]format=rgba[bg]"]
     prev = "bg"
     for i, (_, fin, fout) in enumerate(layers, start=1):
         f = f"[{i}:v]format=rgba,fade=t=in:st={fin}:d=0.4:alpha=1"
@@ -141,5 +144,4 @@ def build(shot, render_dur, out=None):
     cmd += ["-filter_complex", ";".join(steps), "-map", "[vout]",
             *INTERMEDIATE, "-t", f"{render_dur}", str(out)]
     run(cmd)
-    bgpng.unlink()
     return out

@@ -14,8 +14,12 @@ FILM_ANNOTATE=1 ./build.sh    # production cut: shot IDs, paths, source kinds
 ```
 
 `FILM_ANNOTATE` is off by default. Placeholder cards carry only the brand
-field, the shot's motif and its real caption, so the rough cut can be shown to
+particle field and the shot's real caption, so the rough cut can be shown to
 people. Turn it on when you need to see which file each gap is waiting for.
+
+Every shot duration lives in `storyboard.json` and nowhere else — `montage.py`
+and `titlecards.py` read theirs from it. Retiming the film is one number per
+shot; the brief's original 150s cut was 6,7,8,9,6,10,8,6,10,12,8,25,12,8,10,5.
 
 Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 `pillow` + `numpy`. Fonts: Noto Serif Display, Inter.
@@ -24,10 +28,10 @@ Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 
 | | |
 |---|---|
-| Runtime | **150.00s** exactly (target 150s, ceiling 155s) |
+| Runtime | **114.00s** — 1:54. Shortened from the brief's 150s at the client's request |
 | Shots from real sources | 3 / 16 — S12, S15, S16 |
-| Placeholders | 13 — brand background, shot motif, real caption at real timing |
-| Audio | original score, `scripts/score.py`, normalised to −16 LUFS |
+| Placeholders | 13 — brand particle field, real caption at real timing |
+| Audio | **silent** — awaiting a licensed track in `assets/source/music/` |
 | Review | `docs/REVIEW.md` — 4 blockers and 9 majors found, all fixed |
 
 The rough cut is full length and screenable now. Placeholders carry each shot's
@@ -53,7 +57,7 @@ scripts/
   filmlib.py               shared helpers, palette, encode settings
   extract_brand.py         pulls genuine vectors out of the client PDF
   textgen.py               all on-screen text -> RGBA PNGs
-  particles.py             particle-network brand background
+  particles.py             particle-network field — every shot sits on it
   titlecards.py            S15 (blocker) and S16
   montage.py               S12 team montage
   logo_wall.py             S13 partner wall, optical-ink-area normalised

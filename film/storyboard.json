@@ -3,10 +3,16 @@
   "venue": "Galilee Medical Center, Nahariya",
   "screening_date": "2026-09-09",
   "fps": 24,
-  "target_duration": 150,
+  "target_duration": 114,
   "hard_ceiling": 155,
-  "master": {"w": 1920, "h": 1080},
-  "variant": {"w": 3840, "h": 2160},
+  "master": {
+    "w": 1920,
+    "h": 1080
+  },
+  "variant": {
+    "w": 3840,
+    "h": 2160
+  },
   "palette": {
     "bg": "#0A1628",
     "cyan": "#2FBFDA",
@@ -22,109 +28,220 @@
   },
   "shots": [
     {
-      "id": "S01", "section": "Cold open", "start": 0, "dur": 6,
-      "source_kind": "existing", "input": "assets/source/video/intro_clip.mp4",
+      "id": "S01",
+      "section": "Cold open",
+      "start": 0,
+      "dur": 4,
+      "source_kind": "existing",
+      "input": "assets/source/video/intro_clip.mp4",
       "content": "Neural glow, particle field, brand motif. Upscale. Remove cursive line.",
       "notes": "Client clip VID-20260810-WA0039.mp4 not yet supplied. Cursive line at 0:01-0:05 must be removed."
     },
     {
-      "id": "S02", "section": "Cold open", "start": 6, "dur": 7,
-      "source_kind": "ai", "input": "assets/generated/S02.mp4",
+      "id": "S02",
+      "section": "Cold open",
+      "start": 4,
+      "dur": 5,
+      "source_kind": "ai",
+      "input": "assets/generated/S02.mp4",
       "content": "Push through vascular tree, filaments igniting in sequence",
-      "text": [{"line": "Every image tells a story.", "style": "serif_center"}]
+      "text": [
+        {
+          "line": "Every image tells a story.",
+          "style": "serif_center"
+        }
+      ]
     },
     {
-      "id": "S03", "section": "The image", "start": 13, "dur": 8,
-      "source_kind": "ai", "input": "assets/generated/S03.mp4",
+      "id": "S03",
+      "section": "The image",
+      "start": 9,
+      "dur": 5,
+      "source_kind": "ai",
+      "input": "assets/generated/S03.mp4",
       "content": "Cross-sectional planes sweeping through translucent head",
-      "text": [{"line": "Some stories can only be read in time.", "style": "serif_lower"}]
+      "text": [
+        {
+          "line": "Some stories can only be read in time.",
+          "style": "serif_lower"
+        }
+      ]
     },
     {
-      "id": "S04", "section": "The image", "start": 21, "dur": 9,
-      "source_kind": "real_preferred", "input": "assets/source/video/S04_angio_suite.mp4",
+      "id": "S04",
+      "section": "The image",
+      "start": 14,
+      "dur": 6,
+      "source_kind": "real_preferred",
+      "input": "assets/source/video/S04_angio_suite.mp4",
       "fallback": "assets/generated/S04.mp4",
       "content": "Angio suite coming alive - monitors, C-arm, gloved hands"
     },
     {
-      "id": "S05", "section": "Thrombectomy", "start": 30, "dur": 6,
-      "source_kind": "ai", "input": "assets/generated/S05.mp4",
+      "id": "S05",
+      "section": "Thrombectomy",
+      "start": 20,
+      "dur": 4,
+      "source_kind": "ai",
+      "input": "assets/generated/S05.mp4",
       "content": "Tension. Flow stops, downstream branches darken",
-      "text": [{"line": "THROMBECTOMY", "style": "sans_caps_lowerleft"}]
+      "text": [
+        {
+          "line": "THROMBECTOMY",
+          "style": "sans_caps_lowerleft"
+        }
+      ]
     },
     {
-      "id": "S06", "section": "Thrombectomy", "start": 36, "dur": 10,
-      "source_kind": "real_preferred", "input": "assets/source/video/S06_dsa_run.mp4",
+      "id": "S06",
+      "section": "Thrombectomy",
+      "start": 24,
+      "dur": 7,
+      "source_kind": "real_preferred",
+      "input": "assets/source/video/S06_dsa_run.mp4",
       "fallback": "assets/generated/S06.mp4",
       "content": "DSA run - microcatheter, stent retriever. Hero clip.",
       "notes": "If AI fallback is used it must NOT be presented or captioned as a real case."
     },
     {
-      "id": "S07", "section": "Thrombectomy", "start": 46, "dur": 8,
-      "source_kind": "ai", "input": "assets/generated/S07.mp4",
+      "id": "S07",
+      "section": "Thrombectomy",
+      "start": 31,
+      "dur": 6,
+      "source_kind": "ai",
+      "input": "assets/generated/S07.mp4",
       "content": "Release. Light floods back through darkened branches",
       "hero": true,
-      "text": [{"line": "Minutes are brain.", "style": "serif_center"}]
+      "text": [
+        {
+          "line": "Minutes are brain.",
+          "style": "serif_center"
+        }
+      ]
     },
     {
-      "id": "S08", "section": "Coiling", "start": 54, "dur": 6,
-      "source_kind": "ai", "input": "assets/generated/S08.mp4",
+      "id": "S08",
+      "section": "Coiling",
+      "start": 37,
+      "dur": 4,
+      "source_kind": "ai",
+      "input": "assets/generated/S08.mp4",
       "content": "Aneurysm sac pulsing under pressure",
-      "text": [{"line": "COILING", "style": "sans_caps_lowerleft"}]
+      "text": [
+        {
+          "line": "COILING",
+          "style": "sans_caps_lowerleft"
+        }
+      ]
     },
     {
-      "id": "S09", "section": "Coiling", "start": 60, "dur": 10,
-      "source_kind": "real_preferred", "input": "assets/source/video/S09_coiling.mp4",
+      "id": "S09",
+      "section": "Coiling",
+      "start": 41,
+      "dur": 7,
+      "source_kind": "real_preferred",
+      "input": "assets/source/video/S09_coiling.mp4",
       "fallback": "assets/generated/S09.mp4",
       "content": "Coil deployment - sac filling, packing, sealing"
     },
     {
-      "id": "S10", "section": "Embolization", "start": 70, "dur": 12,
-      "source_kind": "mixed", "input": "assets/generated/S10.mp4",
+      "id": "S10",
+      "section": "Embolization",
+      "start": 48,
+      "dur": 8,
+      "source_kind": "mixed",
+      "input": "assets/generated/S10.mp4",
       "content": "Tangled nidus progressively quieting into stillness",
-      "text": [{"line": "EMBOLIZATION", "style": "sans_caps_lowerleft"}]
+      "text": [
+        {
+          "line": "EMBOLIZATION",
+          "style": "sans_caps_lowerleft"
+        }
+      ]
     },
     {
-      "id": "S11", "section": "Bridge", "start": 82, "dur": 8,
-      "source_kind": "ai", "input": "assets/generated/S11.mp4",
+      "id": "S11",
+      "section": "Bridge",
+      "start": 56,
+      "dur": 5,
+      "source_kind": "ai",
+      "input": "assets/generated/S11.mp4",
       "content": "Pull back from micro to human scale - head, figure, corridor",
-      "text": [{"line": "Behind every image —", "style": "serif_center"}]
+      "text": [
+        {
+          "line": "Behind every image —",
+          "style": "serif_center"
+        }
+      ]
     },
     {
-      "id": "S12", "section": "The team", "start": 90, "dur": 25,
-      "source_kind": "built", "input": "build/shots/S12.mp4",
+      "id": "S12",
+      "section": "The team",
+      "start": 61,
+      "dur": 24,
+      "source_kind": "built",
+      "input": "build/shots/S12.mp4",
       "content": "Team montage. Emotional core.",
       "builder": "scripts/montage.py"
     },
     {
-      "id": "S13", "section": "Collaboration", "start": 115, "dur": 12,
-      "source_kind": "ai", "input": "assets/generated/S13.mp4",
+      "id": "S13",
+      "section": "Collaboration",
+      "start": 85,
+      "dur": 10,
+      "source_kind": "ai",
+      "input": "assets/generated/S13.mp4",
       "content": "Points of light connecting into one network. Partner logos resolve.",
       "hero": true,
       "overlay": "build/shots/S13_logos.mov",
       "text": [
-        {"line": "For the first time in Israel —", "style": "serif_center"},
-        {"line": "every sector of imaging, in one room.", "style": "serif_center"}
+        {
+          "line": "For the first time in Israel —",
+          "style": "serif_center"
+        },
+        {
+          "line": "every sector of imaging, in one room.",
+          "style": "serif_center"
+        }
       ],
       "notes": "Text must fully clear frame before logos fade in at 2:02 (t=122s)."
     },
     {
-      "id": "S14", "section": "Legacy", "start": 127, "dur": 8,
-      "source_kind": "ai", "input": "assets/generated/S14.mp4",
+      "id": "S14",
+      "section": "Legacy",
+      "start": 95,
+      "dur": 5,
+      "source_kind": "ai",
+      "input": "assets/generated/S14.mp4",
       "content": "Single point expanding into a vast luminous field",
-      "text": [{"line": "The first of many.", "style": "serif_center"}]
+      "text": [
+        {
+          "line": "The first of many.",
+          "style": "serif_center"
+        }
+      ]
     },
     {
-      "id": "S15", "section": "Title card", "start": 135, "dur": 10,
-      "source_kind": "built", "input": "build/shots/S15.mp4",
+      "id": "S15",
+      "section": "Title card",
+      "start": 100,
+      "dur": 9,
+      "source_kind": "built",
+      "input": "build/shots/S15.mp4",
       "content": "Corrected title card. Rebuilt from scratch - fixes duplicated THE.",
       "builder": "scripts/titlecards.py",
       "blocker": true
     },
     {
-      "id": "S16", "section": "Credit", "start": 145, "dur": 5,
-      "source_kind": "built", "input": "build/shots/S16.mp4",
+      "id": "S16",
+      "section": "Credit",
+      "start": 109,
+      "dur": 5,
+      "source_kind": "built",
+      "input": "build/shots/S16.mp4",
       "content": "GMC founding credit + sponsor wall",
       "builder": "scripts/titlecards.py"
     }
-  ]
+  ],
+  "_pacing_note": "Shortened from the brief's 150s at the client's request - with little text per shot the 150s cut read slow. Durations live here and nowhere else; the original timing was 6,7,8,9,6,10,8,6,10,12,8,25,12,8,10,5."
 }
