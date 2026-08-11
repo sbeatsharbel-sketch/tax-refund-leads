@@ -9,7 +9,13 @@ Medical Center lobby, Nahariya, 9 September 2026. Not published online.
 ./build.sh              # rebuild everything (draft resampling, fast)
 ./build.sh final        # delivery quality
 ./build.sh validate     # asset report only, no encode
+
+FILM_ANNOTATE=1 ./build.sh    # production cut: shot IDs, paths, source kinds
 ```
+
+`FILM_ANNOTATE` is off by default. Placeholder cards carry only the brand
+field, the shot's motif and its real caption, so the rough cut can be shown to
+people. Turn it on when you need to see which file each gap is waiting for.
 
 Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 `pillow` + `numpy`. Fonts: Noto Serif Display, Inter.
@@ -20,8 +26,9 @@ Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 |---|---|
 | Runtime | **150.00s** exactly (target 150s, ceiling 155s) |
 | Shots from real sources | 3 / 16 — S12, S15, S16 |
-| Placeholders | 13 — correct duration, real on-screen text at real timing |
-| Audio | silent — no licensed track supplied |
+| Placeholders | 13 — brand background, shot motif, real caption at real timing |
+| Audio | original score, `scripts/score.py`, normalised to −16 LUFS |
+| Review | `docs/REVIEW.md` — 4 blockers and 9 majors found, all fixed |
 
 The rough cut is full length and screenable now. Placeholders carry each shot's
 real captions at their real timings, so pacing can be judged before any of the
