@@ -35,9 +35,26 @@ CLOSING_DUR = min(5.0, SHOT_DUR * 0.21)
 # on faces - four translucent heads floated over the group at 1:49.9 -
 # and the brief calls for hard cuts inside a section anyway.
 DISSOLVE = 0.0
-ZOOM_START, ZOOM_END = 1.02, 1.095
-DRIFT_PX = 26           # horizontal drift across a slot
+ZMAX = 1.055            # most a cover-framed photograph is ever zoomed in
+FIT_MIN, FIT_MAX = 0.88, 0.955   # contain mode: fraction of frame height used
 DEFAULT_ANCHOR = 0.38   # vertical crop anchor; 0 = top, 1 = bottom
+
+# A photograph much narrower than 16:9 loses most of itself to a cover crop -
+# a 471x1023 portrait keeps 26% of its height and comes out as an anonymous
+# torso. Anything below this aspect is framed whole instead, over a blurred
+# copy of itself.
+CONTAIN_BELOW = 1.15
+
+# One move per photograph, cycled so no two neighbours share one. Amplitudes
+# are deliberately small: this should read as a living photograph, not a
+# camera move.
+MOVES = ["push_in", "pan_r", "pull_out", "rise", "pan_l", "drift", "fall"]
+
+# Travel budget in pixels, each way. A pan proportional to the available margin
+# slides a tall portrait a third of the way across the frame, which reads as a
+# camera move rather than a living photograph.
+PAN_X, PAN_Y = 130, 90
+FG_PAN_X, FG_PAN_Y = 55, 40
 
 # Closing beat: dim the last photograph under "One goal."
 DIM_START, DIM_RAMP, DIM_MAX = SHOT_DUR - CLOSING_DUR - 0.2, 1.4, 0.36
@@ -60,68 +77,121 @@ ANCHORS = {
 }
 
 
+def _smooth(p):
+    return p * p * (3 - 2 * p)
+
+
 class Slot:
-    """One photograph (or a pending-photo placeholder) with its Ken Burns move."""
+    """One photograph with its own move.
+
+    Two framings. A photograph close to 16:9 is framed edge to edge (cover) and
+    the move works inside whatever margin the aspect mismatch leaves. A
+    photograph much taller than the frame is shown whole (contain) over a
+    blurred, darkened copy of itself, which moves at half speed behind it - so
+    nobody is cropped out of a picture they are in.
+    """
 
     def __init__(self, dur, path=None, anchor=DEFAULT_ANCHOR, pending_label=None,
-                 drift_sign=1, crop=None):
+                 move="push_in", crop=None):
         self.dur = dur
         self.anchor = anchor
         self.pending_label = pending_label
-        self.drift_sign = drift_sign
-        self.base = None
-        if path:
-            im = Image.open(path).convert("RGB")
-            if crop:
-                # Fractional [left, top, right, bottom]. Used to exclude
-                # something from frame - never to alter what stays in it.
-                l, t, r, b = crop
-                im = im.crop((int(l * im.width), int(t * im.height),
-                              int(r * im.width), int(b * im.height)))
-            self.base = self._prescale(im)
+        self.move = move
+        self.base = self.back = None
+        self.contain = False
+        if not path:
+            return
+
+        im = Image.open(path).convert("RGB")
+        if crop:
+            # Fractional [left, top, right, bottom]. Used to exclude something
+            # from frame - never to alter what stays in it.
+            l, t, r, b = crop
+            im = im.crop((int(l * im.width), int(t * im.height),
+                          int(r * im.width), int(b * im.height)))
+
+        self.contain = (im.width / im.height) < CONTAIN_BELOW
+        if self.contain:
+            fit = min(W / im.width, H / im.height) * FIT_MAX
+            self.base = im.resize((max(1, round(im.width * fit)),
+                                   max(1, round(im.height * fit))), RESAMPLE)
+            self.back = self._blurred_fill(im)
+        else:
+            cover = max(W / im.width, H / im.height) * ZMAX
+            self.base = im.resize((round(im.width * cover),
+                                   round(im.height * cover)), RESAMPLE)
 
     @staticmethod
-    def _prescale(im):
-        """Scale once to the largest size any frame will need, then crop per frame."""
-        cover = max(W / im.width, H / im.height) * ZOOM_END
-        return im.resize((max(W, int(im.width * cover)),
-                          max(H, int(im.height * cover))), RESAMPLE)
+    def _blurred_fill(im):
+        """A soft, dark bed for a portrait, made from the photograph itself."""
+        cover = max(W / im.width, H / im.height) * 1.18
+        big = im.resize((round(im.width * cover), round(im.height * cover)),
+                        Image.BILINEAR)
+        x, y = (big.width - int(W * 1.18)) // 2, (big.height - int(H * 1.18)) // 2
+        big = big.crop((x, y, x + int(W * 1.18), y + int(H * 1.18)))
+        big = big.filter(ImageFilter.GaussianBlur(46))
+        return Image.blend(big, Image.new("RGB", big.size, BG), 0.62)
+
+    # -- the moves ---------------------------------------------------------
+
+    def _params(self, e):
+        """(zoom 0..1, pan x -1..1, pan y -1..1) for eased progress e."""
+        m, c = self.move, 2 * e - 1
+        if m == "push_in":
+            return e, 0.0, 0.0
+        if m == "pull_out":
+            return 1 - e, 0.0, 0.0
+        if m == "pan_r":
+            return 0.45, c, 0.0
+        if m == "pan_l":
+            return 0.45, -c, 0.0
+        if m == "rise":
+            return 0.45, 0.0, -c
+        if m == "fall":
+            return 0.45, 0.0, c
+        return 0.30 + 0.45 * e, 0.55 * c, -0.35 * c      # drift
 
     def render(self, local_t):
         if self.base is None:
             return self._pending_frame()
-        p = min(max(local_t / self.dur, 0.0), 1.0)
-        eased = p * p * (3 - 2 * p)                      # smoothstep
-        zoom = ZOOM_START + (ZOOM_END - ZOOM_START) * eased
+        e = _smooth(min(max(local_t / self.dur, 0.0), 1.0))
+        z, px, py = self._params(e)
+        return self._contain_frame(z, px, py) if self.contain \
+            else self._cover_frame(z, px, py)
 
+    def _cover_frame(self, z, px, py):
         bw, bh = self.base.size
-        # window size at this zoom, relative to the fully-zoomed base
-        win_w = int(bw * (ZOOM_START / zoom))
-        win_h = int(win_w * H / W)
-        if win_h > bh:
-            win_h = bh
-            win_w = int(win_h * W / H)
+        scale = 1.0 + (ZMAX - 1.0) * z
+        win_w = min(bw, int(W * ZMAX / scale))
+        win_h = min(bh, int(win_w * H / W))
+        win_w = min(bw, int(win_h * W / H))
 
-        drift = self.drift_sign * DRIFT_PX * (eased - 0.5) * 2
-        x = (bw - win_w) / 2 + drift
-        y = (bh - win_h) * self.anchor
-        x = min(max(x, 0), bw - win_w)
-        y = min(max(y, 0), bh - win_h)
+        mx, my = bw - win_w, bh - win_h
+        x = mx / 2 + px * min(mx / 2, PAN_X)
+        y = my * self.anchor + py * min(my / 2, PAN_Y)
+        x = min(max(x, 0), mx)
+        y = min(max(y, 0), my)
+        return self.base.crop((int(x), int(y), int(x) + win_w,
+                               int(y) + win_h)).resize((W, H), RESAMPLE)
 
-        crop = self.base.crop((int(x), int(y), int(x) + win_w, int(y) + win_h))
-        return crop.resize((W, H), RESAMPLE)
+    def _contain_frame(self, z, px, py):
+        # Background moves at half the foreground's rate - real parallax.
+        bg = self.back
+        bw, bh = bg.size
+        bmx, bmy = bw - W, bh - H
+        bx = bmx / 2 + px * min(bmx / 2, FG_PAN_X * 0.45)
+        by = bmy / 2 + py * min(bmy / 2, FG_PAN_Y * 0.45)
+        frame = bg.crop((int(bx), int(by), int(bx) + W, int(by) + H)).copy()
 
-    def _pending_frame(self):
-        im = Image.new("RGB", (W, H), BG)
-        d = ImageDraw.Draw(im)
-        d.rounded_rectangle([260, 360, W - 260, H - 360], radius=8,
-                            outline=CYAN + (150,), width=3)
-        centred_line(im, self.pending_label or "PHOTOS PENDING",
-                     font("sans_semibold", 54), 470, CYAN, tracking=4)
-        centred_line(im, "slot reserved — photographs not yet supplied",
-                     font("sans", 42), 560, SILVER)
-        return im
+        k = (FIT_MIN + (FIT_MAX - FIT_MIN) * z) / FIT_MAX
+        fw, fh = max(1, round(self.base.width * k)), max(1, round(self.base.height * k))
+        fg = self.base.resize((fw, fh), RESAMPLE)
 
+        room_x, room_y = (W - fw) / 2, (H - fh) / 2
+        fx = room_x + px * min(room_x, FG_PAN_X)
+        fy = room_y + py * min(room_y, FG_PAN_Y)
+        frame.paste(fg, (int(fx), int(fy)))
+        return frame
 
 def bottom_scrim():
     """Navy gradient over the lower band so captions stay legible on any photo.
@@ -162,7 +232,8 @@ def build_slots():
 
     total = sum(len(ps) for _, ps in groups)
     if total == 0:
-        return [Slot(SHOT_DUR, None, pending_label="PHOTOGRAPHS PENDING")], \
+        return [Slot(SHOT_DUR, None,
+                     pending_label="PHOTOGRAPHS PENDING")], \
             pending, []
     per = (SHOT_DUR - CLOSING_DUR) / total
 
@@ -175,7 +246,7 @@ def build_slots():
                 continue
             slots.append(Slot(per, path,
                               rec.get("anchor", ANCHORS.get(key, DEFAULT_ANCHOR)),
-                              drift_sign=1 if i % 2 == 0 else -1,
+                              move=rec.get("move", MOVES[i % len(MOVES)]),
                               crop=rec.get("crop")))
             i += 1
         if len(slots) > start:
@@ -183,7 +254,8 @@ def build_slots():
 
     closing = ROOT / cfg["closing_slot"]["preferred"]
     slots.append(Slot(CLOSING_DUR, closing if closing.exists() else None,
-                      0.36, pending_label="CLOSING FRAME PENDING"))
+                      0.42, pending_label="CLOSING FRAME PENDING",
+                      move="pull_out"))
     return slots, pending, layout
 
 

@@ -52,6 +52,15 @@ the film returns to its full 2:30 shape.
   across each institution's group. Nahariya and Rambam are skipped until their
   photographs arrive, at which point the montage re-times itself.
 
+  Two framings, chosen per photograph. Anything near 16:9 is framed edge to
+  edge. Anything much taller — 13 of the 23, one as narrow as 0.46 — is framed
+  **whole** over a blurred, darkened copy of itself, because a cover crop was
+  keeping as little as 26% of the picture and turning people into torsos.
+  Each photograph gets its own move from a cycle of seven (push in, pull out,
+  pan, rise, fall, drift), with travel capped in pixels so it reads as a
+  living photograph rather than a camera move. In contain framing the bed
+  moves at roughly half the speed of the photograph on top of it.
+
 ## Layout
 
 ```
