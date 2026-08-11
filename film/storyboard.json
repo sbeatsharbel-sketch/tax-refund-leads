@@ -3,7 +3,7 @@
   "venue": "Galilee Medical Center, Nahariya",
   "screening_date": "2026-09-09",
   "fps": 24,
-  "target_duration": 142,
+  "target_duration": 81,
   "hard_ceiling": 155,
   "master": {
     "w": 1920,
@@ -27,6 +27,77 @@
     "sans_semibold": "/usr/share/fonts/opentype/inter/Inter-SemiBold.otf"
   },
   "shots": [
+    {
+      "id": "S12",
+      "section": "The team",
+      "start": 0,
+      "dur": 52,
+      "source_kind": "built",
+      "input": "build/shots/S12.mp4",
+      "content": "Team montage. Emotional core.",
+      "builder": "scripts/montage.py"
+    },
+    {
+      "id": "S13",
+      "section": "Collaboration",
+      "start": 52,
+      "dur": 10,
+      "source_kind": "ai",
+      "input": "assets/generated/S13.mp4",
+      "content": "Points of light connecting into one network. Partner logos resolve.",
+      "hero": true,
+      "overlay": "build/shots/S13_logos.mov",
+      "text": [
+        {
+          "line": "For the first time in Israel —",
+          "style": "serif_center"
+        },
+        {
+          "line": "every sector of imaging, in one room.",
+          "style": "serif_center"
+        }
+      ],
+      "notes": "Text must fully clear frame before logos fade in at 2:02 (t=122s)."
+    },
+    {
+      "id": "S14",
+      "section": "Legacy",
+      "start": 62,
+      "dur": 5,
+      "source_kind": "ai",
+      "input": "assets/generated/S14.mp4",
+      "content": "Single point expanding into a vast luminous field",
+      "text": [
+        {
+          "line": "The first of many.",
+          "style": "serif_center"
+        }
+      ]
+    },
+    {
+      "id": "S15",
+      "section": "Title card",
+      "start": 67,
+      "dur": 9,
+      "source_kind": "built",
+      "input": "build/shots/S15.mp4",
+      "content": "Corrected title card. Rebuilt from scratch - fixes duplicated THE.",
+      "builder": "scripts/titlecards.py",
+      "blocker": true
+    },
+    {
+      "id": "S16",
+      "section": "Credit",
+      "start": 76,
+      "dur": 5,
+      "source_kind": "built",
+      "input": "build/shots/S16.mp4",
+      "content": "GMC founding credit + sponsor wall",
+      "builder": "scripts/titlecards.py"
+    }
+  ],
+  "_pacing_note": "S01-S11 were removed at the client's request: with no generated or filmed material yet they were empty placeholder beats and read as unrelated to the film. They are preserved verbatim in deferred_shots below - move them back into shots and re-run the build once the OpenArt clips and the real DSA footage exist. The film now opens on the team.",
+  "deferred_shots": [
     {
       "id": "S01",
       "section": "Cold open",
@@ -173,75 +244,6 @@
           "style": "serif_center"
         }
       ]
-    },
-    {
-      "id": "S12",
-      "section": "The team",
-      "start": 61,
-      "dur": 52,
-      "source_kind": "built",
-      "input": "build/shots/S12.mp4",
-      "content": "Team montage. Emotional core.",
-      "builder": "scripts/montage.py"
-    },
-    {
-      "id": "S13",
-      "section": "Collaboration",
-      "start": 113,
-      "dur": 10,
-      "source_kind": "ai",
-      "input": "assets/generated/S13.mp4",
-      "content": "Points of light connecting into one network. Partner logos resolve.",
-      "hero": true,
-      "overlay": "build/shots/S13_logos.mov",
-      "text": [
-        {
-          "line": "For the first time in Israel —",
-          "style": "serif_center"
-        },
-        {
-          "line": "every sector of imaging, in one room.",
-          "style": "serif_center"
-        }
-      ],
-      "notes": "Text must fully clear frame before logos fade in at 2:02 (t=122s)."
-    },
-    {
-      "id": "S14",
-      "section": "Legacy",
-      "start": 123,
-      "dur": 5,
-      "source_kind": "ai",
-      "input": "assets/generated/S14.mp4",
-      "content": "Single point expanding into a vast luminous field",
-      "text": [
-        {
-          "line": "The first of many.",
-          "style": "serif_center"
-        }
-      ]
-    },
-    {
-      "id": "S15",
-      "section": "Title card",
-      "start": 128,
-      "dur": 9,
-      "source_kind": "built",
-      "input": "build/shots/S15.mp4",
-      "content": "Corrected title card. Rebuilt from scratch - fixes duplicated THE.",
-      "builder": "scripts/titlecards.py",
-      "blocker": true
-    },
-    {
-      "id": "S16",
-      "section": "Credit",
-      "start": 137,
-      "dur": 5,
-      "source_kind": "built",
-      "input": "build/shots/S16.mp4",
-      "content": "GMC founding credit + sponsor wall",
-      "builder": "scripts/titlecards.py"
     }
-  ],
-  "_pacing_note": "Shortened from the brief's 150s at the client's request - with little text per shot the 150s cut read slow. Durations live here and nowhere else; the original timing was 6,7,8,9,6,10,8,6,10,12,8,25,12,8,10,5."
+  ]
 }

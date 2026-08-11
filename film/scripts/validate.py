@@ -93,13 +93,13 @@ def main(make_placeholders=True):
 
 def _photo_report():
     cfg = load_photos()
-    pend = [v["name"] for v in cfg["institutions"].values()
-            if not v.get("hero")]
+    insts = cfg["institutions"]
+    pend = [v["name"] for v in insts.values() if not v.get("photos")]
     held = cfg.get("held_back", [])
     n = sum(1 for f in (ROOT / "assets/source/photos").glob("*.jpg"))
-    print(f"  photographs: {n} on disk, "
-          f"{len(cfg['institutions']) - len(pend)}/{len(cfg['institutions'])} "
-          f"institutions cast")
+    used = sum(len(v.get("photos", [])) for v in insts.values()) + 1
+    print(f"  photographs: {used}/{n} on disk in the montage, "
+          f"{len(insts) - len(pend)}/{len(insts)} institutions cast")
     if pend:
         print(f"  {YELLOW}awaiting photographs:{RESET} " + ", ".join(pend))
     blockers = [h for h in held if h.get("severity") == "blocker"]

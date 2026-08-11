@@ -1,6 +1,6 @@
 # Beyond the Image 2026 — opening film
 
-2:30 conference opening film. Plays once, on a large screen in the Galilee
+Conference opening film. Plays once, on a large screen in the Galilee
 Medical Center lobby, Nahariya, 9 September 2026. Not published online.
 
 ## Build
@@ -28,15 +28,18 @@ Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 
 | | |
 |---|---|
-| Runtime | **142.00s** — 2:22 (ceiling 155s) |
-| Shots from real sources | 3 / 16 — S12, S15, S16 |
-| Placeholders | 13 — brand particle field, real caption at real timing |
+| Runtime | **81.00s** — 1:21 (ceiling 155s) |
+| Shots | 5 — S12, S13, S14, S15, S16. S01–S11 are deferred, see below |
+| Placeholders | 2 — S13 and S14, on the brand particle field |
 | Audio | **silent** — awaiting a licensed track in `assets/source/music/` |
 | Review | `docs/REVIEW.md` — 4 blockers and 9 majors found, all fixed |
 
-The rough cut is full length and screenable now. Placeholders carry each shot's
-real captions at their real timings, so pacing can be judged before any of the
-generated or filmed material exists.
+The film currently opens on the team montage. S01–S11 — the cold open, the
+three procedure sections and the bridge — were empty placeholder beats with no
+generated or filmed material behind them, so they are **deferred**: preserved
+verbatim in `storyboard.json` under `deferred_shots`. Move them back into
+`shots` and rebuild once the OpenArt clips and the real DSA footage exist, and
+the film returns to its full 2:30 shape.
 
 ## What is real
 
