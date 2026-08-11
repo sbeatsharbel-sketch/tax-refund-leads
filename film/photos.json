@@ -89,7 +89,7 @@
       ]
     },
     "hadassah": {
-      "name": "Hadassah Medical Organization",
+      "name": "Hadassah Medical Center",
       "city": "Jerusalem",
       "status": "READY",
       "note": "hadassah_02 is cropped to the left 80%, dropping the foreground man who was cut through the skull by the frame edge.",
@@ -148,9 +148,8 @@
     }
   },
   "closing_slot": {
-    "_comment": "Final beat of S12, held longer under 'One goal.'",
-    "preferred": "assets/source/photos/carmel_02.jpg",
-    "note": "Swap to a Galilee wide shot once Nahariya photographs arrive."
+    "_comment": "Final photograph of S12. Same duration as the rest.",
+    "preferred": "assets/source/photos/carmel_02.jpg"
   },
   "held_back": [],
   "reserve": [],

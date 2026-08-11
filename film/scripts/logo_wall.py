@@ -25,7 +25,7 @@ OUTDIR = ROOT / "build" / "shots"
 ORDER = [
     ("01_galilee", "Galilee Medical Center", "Nahariya"),
     ("02_rambam", "Rambam Health Care Campus", "Haifa"),
-    ("03_hadassah", "Hadassah Medical Organization", "Jerusalem"),
+    ("03_hadassah", "Hadassah Medical Center", "Jerusalem"),
     ("04_sheba", "Sheba Medical Center, Tel HaShomer", "Ramat Gan"),
 ]
 

@@ -30,7 +30,6 @@ def _shot_dur(shot_id, default):
 
 
 SHOT_DUR = _shot_dur("S12", 25.0)
-CLOSING_DUR = min(5.0, SHOT_DUR * 0.21)
 # Hard cuts. A dissolve between two group photographs superimposes faces
 # on faces - four translucent heads floated over the group at 1:49.9 -
 # and the brief calls for hard cuts inside a section anyway.
@@ -55,9 +54,6 @@ MOVES = ["push_in", "pan_r", "pull_out", "rise", "pan_l", "drift", "fall"]
 # camera move rather than a living photograph.
 PAN_X, PAN_Y = 130, 90
 FG_PAN_X, FG_PAN_Y = 55, 40
-
-# Closing beat: dim the last photograph under "One goal."
-DIM_START, DIM_RAMP, DIM_MAX = SHOT_DUR - CLOSING_DUR - 0.2, 1.4, 0.36
 
 # LANCZOS for delivery, BICUBIC while iterating (visually identical at these
 # scale factors, roughly 3x faster). Set FILM_QUALITY=final for the master.
@@ -208,11 +204,6 @@ def bottom_scrim():
     return scrim
 
 
-def dim_layer(opacity):
-    """Flat navy wash. Used to sit the closing photograph back under 'One goal.'"""
-    return Image.new("RGBA", (W, H), BG + (int(255 * opacity),))
-
-
 def build_slots():
     """Every supplied photograph gets a slot, grouped by institution.
 
@@ -230,12 +221,12 @@ def build_slots():
     pending = [insts[k]["name"] for k in order
                if not insts[k].get("photos")]
 
-    total = sum(len(ps) for _, ps in groups)
-    if total == 0:
+    total = sum(len(ps) for _, ps in groups) + 1   # + the closing photograph
+    if total == 1:
         return [Slot(SHOT_DUR, None,
                      pending_label="PHOTOGRAPHS PENDING")], \
             pending, []
-    per = (SHOT_DUR - CLOSING_DUR) / total
+    per = SHOT_DUR / total
 
     slots, layout, i = [], [], 0
     for key, photos in groups:
@@ -253,7 +244,7 @@ def build_slots():
             layout.append((key, start, len(slots) - start))
 
     closing = ROOT / cfg["closing_slot"]["preferred"]
-    slots.append(Slot(CLOSING_DUR, closing if closing.exists() else None,
+    slots.append(Slot(per, closing if closing.exists() else None,
                       0.42, pending_label="CLOSING FRAME PENDING",
                       move="pull_out"))
     return slots, pending, layout
@@ -279,9 +270,6 @@ def caption_schedule(slots, layout):
         b = starts[first + count - 1] + slots[first + count - 1].dur
         sched.append((p, a + 0.4, b - 0.45))
 
-    og = TEXT / "S12_onegoal.png"
-    if og.exists():
-        sched.append((og, starts[-1] + 0.2, None))
     return sched
 
 
@@ -316,11 +304,6 @@ def render():
 
         frame = frame.convert("RGBA")
         frame.alpha_composite(scrim)
-
-        # Closing beat: sit the photograph back so "One goal." carries the frame.
-        if t >= DIM_START:
-            k = min((t - DIM_START) / DIM_RAMP, 1.0)
-            frame.alpha_composite(dim_layer(DIM_MAX * (k * k * (3 - 2 * k))))
 
         for img, fin, fout in captions:
             a = _alpha(t, fin, fout)

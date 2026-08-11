@@ -87,7 +87,6 @@ def main():
     for key in cfg["montage_order"]:
         rec = cfg["institutions"][key]
         role(f"S12_inst_{key}", f"{rec['name']}  ·  {rec['city']}")
-    statement("S12_onegoal", "One goal.", big=True, shadow=True)
 
     statement("S13_first", "For the first time in Israel —")
     statement("S13_sector", "every sector of imaging, in one room.")

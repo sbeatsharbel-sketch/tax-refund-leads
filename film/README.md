@@ -28,18 +28,22 @@ Requires `ffmpeg`, `rsvg-convert`, `poppler-utils`, and Python with
 
 | | |
 |---|---|
-| Runtime | **81.00s** — 1:21 (ceiling 155s) |
-| Shots | 5 — S12, S13, S14, S15, S16. S01–S11 are deferred, see below |
-| Placeholders | 2 — S13 and S14, on the brand particle field |
+| Runtime | **52.00s** — 0:52 (ceiling 155s) |
+| Shots | 1 — S12, the team montage. Everything else is deferred, see below |
+| Placeholders | none |
 | Audio | **silent** — awaiting a licensed track in `assets/source/music/` |
 | Review | `docs/REVIEW.md` — 4 blockers and 9 majors found, all fixed |
 
-The film currently opens on the team montage. S01–S11 — the cold open, the
-three procedure sections and the bridge — were empty placeholder beats with no
-generated or filmed material behind them, so they are **deferred**: preserved
-verbatim in `storyboard.json` under `deferred_shots`. Move them back into
-`shots` and rebuild once the OpenArt clips and the real DSA footage exist, and
-the film returns to its full 2:30 shape.
+The film is currently **the team montage alone**, ending where the
+photographs end. Every other shot — the cold open, the three procedure
+sections, the bridge, the collaboration beat, the legacy line, **the corrected
+title card and the founding credit** — is *deferred*, not deleted: each is
+preserved verbatim in `storyboard.json` under `deferred_shots`. Move any of
+them back into `shots` and rebuild to restore it.
+
+Note that the title card is what fixes the duplicated "THE" in the supplied
+clip. It is out of the current cut by request; bringing it back is one move
+in `storyboard.json`.
 
 ## What is real
 
@@ -51,6 +55,8 @@ the film returns to its full 2:30 shape.
   institution in the client-specified order, 2.14s each, one caption held
   across each institution's group. Nahariya and Rambam are skipped until their
   photographs arrive, at which point the montage re-times itself.
+
+  There is no closing text card; the last photograph simply fades to black.
 
   Two framings, chosen per photograph. Anything near 16:9 is framed edge to
   edge. Anything much taller — 13 of the 23, one as narrow as 0.46 — is framed
