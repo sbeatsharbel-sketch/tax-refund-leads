@@ -77,6 +77,7 @@ docs/OPEN_QUESTIONS.md     decisions needed from the client
 | `out/beyond_the_image_2026_1080p.mp4` | H.264, CRF 18, +faststart |
 | `out/beyond_the_image_2026_4k.mp4` | 3840×2160 variant |
 | `out/final_frame.png` | held lobby slide |
+| `out/preview_720p.mp4` | small shareable cut, ~8 MB |
 | `out/qc_contact_sheet.jpg` | one frame every 2s, to catch text errors |
 
 ## Hard constraints enforced in code
@@ -86,7 +87,8 @@ docs/OPEN_QUESTIONS.md     decisions needed from the client
 - Photographs are never regenerated, restyled or face-altered — geometry only.
 - Logos are never drawn or traced. A mark that cannot be sourced is reported
   as missing, and `logo_wall.py` renders a visible NOT SOURCED marker.
-- Missing sponsor logos render "NOT FOR SCREENING" rather than an empty box.
+- Missing sponsor logos render a PENDING marker rather than an empty box, and
+  it clears before the end so the film never closes on it.
 
 ## Adding material as it arrives
 

@@ -42,6 +42,12 @@ python3 scripts/validate.py
 step "assemble + encode"
 python3 scripts/assemble.py
 
+step "shareable preview"
+ffmpeg -y -v error -i out/beyond_the_image_2026_1080p.mp4 -vf scale=1280:720 \
+  -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -c:a aac -b:a 128k \
+  -movflags +faststart out/preview_720p.mp4
+echo "  -> out/preview_720p.mp4 ($(du -h out/preview_720p.mp4 | cut -f1))"
+
 step "qc contact sheet"
 python3 scripts/qc.py
 
