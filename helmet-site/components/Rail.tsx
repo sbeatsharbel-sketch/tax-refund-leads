@@ -14,7 +14,7 @@ export function Rail() {
       {/* Soft scrim so the numbers stay legible over photography and over
           the marquee strips that scroll past behind them. */}
       <div
-        className="absolute -inset-y-6 -left-6 right-[-1.5rem] bg-gradient-to-r from-ink/85 via-ink/45 to-transparent"
+        className="absolute -inset-y-10 -left-6 right-[-1.5rem] bg-gradient-to-r from-ink/85 via-ink/45 to-transparent [mask-image:linear-gradient(to_bottom,transparent,#000_18%,#000_82%,transparent)]"
         aria-hidden
       />
 
