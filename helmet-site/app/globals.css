@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0a0a0b;
+  --color-bone: #f2ede4;
+  --color-amber: #c8703a;
+  --font-display: var(--font-display), "Playfair Display", Georgia, serif;
+  --font-mono: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+html {
+  background: var(--color-ink);
+  /* Lenis drives scrolling; native smooth would fight it. */
+  scroll-behavior: auto;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Lenis ------------------------------------------------------------------ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Type ------------------------------------------------------------------- */
+.meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0.55;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(44px, 11vw, 110px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.display em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Line masks: the reveal unit. JS animates .line-in; CSS holds the start
+   state so nothing flashes before GSAP boots. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+.line-in {
+  display: block;
+  will-change: transform, clip-path;
+}
+.js-anim .line-in {
+  transform: translate3d(0, 40px, 0);
+  clip-path: inset(100% 0 0 0);
+}
+
+/* The first chapter is above the fold: reveal it in CSS at first paint
+   instead of waiting for GSAP, so it is not the thing holding up LCP. */
+@keyframes line-rise {
+  from {
+    transform: translate3d(0, 40px, 0);
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    transform: none;
+    clip-path: inset(0% 0 0 0);
+  }
+}
+.js-anim .line-in[data-hero] {
+  animation: line-rise 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+/* Grain + vignette ------------------------------------------------------- */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: normal;
+  background-image: var(--grain-url);
+  background-size: 220px 220px;
+  z-index: 30;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  background:
+    radial-gradient(
+      120% 90% at 50% 45%,
+      rgba(10, 10, 11, 0) 38%,
+      rgba(10, 10, 11, 0.55) 78%,
+      rgba(10, 10, 11, 0.92) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(10, 10, 11, 0.55) 0%,
+      rgba(10, 10, 11, 0) 28%,
+      rgba(10, 10, 11, 0) 62%,
+      rgba(10, 10, 11, 0.75) 100%
+    );
+}
+
+/* Chapters --------------------------------------------------------------- */
+/* One viewport tall; ScrollTrigger adds the scroll room for the pin, so
+   there is never dead space between chapters. */
+.chapter {
+  position: relative;
+  height: 100svh;
+}
+.chapter-pin {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+.chapter-media {
+  position: absolute;
+  /* Bleed so parallax translation never exposes an edge. */
+  inset: -12% -2%;
+  z-index: 0;
+  will-change: transform, opacity;
+}
+.chapter-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.chapter-copy {
+  position: relative;
+  z-index: 25;
+  will-change: transform, opacity;
+}
+
+/* Marquee ---------------------------------------------------------------- */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+.marquee-track {
+  display: inline-flex;
+  will-change: transform;
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Cursor ----------------------------------------------------------------- */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-bone);
+  pointer-events: none;
+  z-index: 90;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot {
+    display: none;
+  }
+}
+
+/* Reduced motion --------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .chapter {
+    height: auto;
+  }
+  .chapter-pin {
+    height: 100svh;
+  }
+  .chapter-media {
+    inset: 0;
+    transform: none !important;
+  }
+  .js-anim .line-in,
+  .line-in {
+    transform: none;
+    clip-path: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .reveal-fade {
+    opacity: 0;
+    transition: opacity 700ms ease;
+  }
+  .reveal-fade.is-in {
+    opacity: 1;
+  }
+}
